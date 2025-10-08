@@ -42,14 +42,14 @@ const ImageUploader = ({ label, placeholder, className, width, height }) => {
         className={`border-2 h-full m-auto border-dashed rounded-md p-4 flex items-center justify-center cursor-pointer
           ${error ? "border-red-500" : "border-gray-300"}
           hover:border-blue-500 transition-colors`}
-        style={{ width: width || "100%"}}
+        style={{ width: width || "100%" , height: "100%" }}
       >
         {preview ? (
           <img
             src={preview}
             alt="preview"
             className="object-contain"
-            style={{ width: "50%", height: "50%" }}
+            style={{ width: "100%", height: "100%" }}
           />
         ) : placeholder ? (
           <img

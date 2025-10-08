@@ -8,7 +8,7 @@ const TextArea = ({ label, error, maxLength, className, darkMode, height, ...pro
 
   useEffect(() => {
     if (textAreaRef.current) {
-      textAreaRef.current.style.height = height ? height + "px" : "auto";
+      textAreaRef.current.style.height = height ? height + "px" : "min-content";
       textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
     }
   }, [text]);
