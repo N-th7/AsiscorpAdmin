@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-const TextArea = ({ label, error, maxLength, className, darkMode, height, ...props }) => {
+const TextArea = ({ label, labelUp, error, maxLength, className, darkMode, height, labelSize,onChange, ...props }) => {
   const [text, setText] = useState(props.value || "");
   const textAreaRef = useRef(null);
 
@@ -20,11 +20,18 @@ const TextArea = ({ label, error, maxLength, className, darkMode, height, ...pro
 
   return (
     <div className="flex flex-col w-full">
-
+      {label && labelUp && (
+            <label className={`mb-1 text-[${labelSize ? labelSize : 14}px] font-medium ${darkMode ? "text-gray-200" : "text-[#B1A6A6]"}`}>
+            {label}
+            </label>
+        )}
       <textarea
         ref={textAreaRef}
         value={text}
-        onChange={handleChange}
+        onChange={(e) => {
+          handleChange(e);        
+          if (onChange) onChange(e);  
+        }}
         maxLength={maxLength}
         className={`resize-none p-3 border rounded-md focus:outline-none focus:ring-2 
           ${error ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
@@ -34,7 +41,7 @@ const TextArea = ({ label, error, maxLength, className, darkMode, height, ...pro
       />
       <div className="flex relative justify-between mt-1 text-xs right-0">
         {label && (
-            <label className={`mb-1 text-[14px] font-medium ${darkMode ? "text-gray-200" : "text-[#B1A6A6]"}`}>
+            <label className={`mb-1 text-[${labelSize ? labelSize : 14}px] font-medium ${darkMode ? "text-gray-200" : "text-[#B1A6A6]"} ${labelUp ? "hidden" : "" }`}>
             {label}
             </label>
         )}

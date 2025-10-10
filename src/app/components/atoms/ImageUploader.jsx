@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 
-const ImageUploader = ({ label, placeholder, className, width, height }) => {
+const ImageUploader = ({ label, placeholder, className, width, height, onChange }) => {
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
   const inputRef = useRef(null);
@@ -15,7 +15,11 @@ const ImageUploader = ({ label, placeholder, className, width, height }) => {
     }
 
     setError("");
-    setPreview(URL.createObjectURL(file));
+    const previewUrl = URL.createObjectURL(file);
+    setPreview(previewUrl);
+
+    // 🔹 Notificamos al padre con el archivo o URL
+    if (onChange) onChange(file, previewUrl);
   };
 
   const handleFileChange = (e) => {
@@ -42,7 +46,7 @@ const ImageUploader = ({ label, placeholder, className, width, height }) => {
         className={`border-2 h-full m-auto border-dashed rounded-md p-4 flex items-center justify-center cursor-pointer
           ${error ? "border-red-500" : "border-gray-300"}
           hover:border-blue-500 transition-colors`}
-        style={{ width: width || "100%" , height: "100%" }}
+        style={{ width: width || "100%", height: height || "100%" }}
       >
         {preview ? (
           <img
@@ -59,9 +63,12 @@ const ImageUploader = ({ label, placeholder, className, width, height }) => {
             style={{ width: "50%", height: "50%" }}
           />
         ) : (
-          <span className="text-gray-400">Arrastra la imagen o haz click para subir</span>
+          <span className="text-gray-400">
+            Arrastra la imagen o haz click para subir
+          </span>
         )}
       </div>
+
       <input
         type="file"
         accept="image/*"

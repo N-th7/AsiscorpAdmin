@@ -10,7 +10,7 @@ export default function ServiceCardForm({ onSubmit, onChange, formData, isEdit =
         onSubmit={onSubmit}
         className="flex flex-col gap-4 w-full"
     >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-15">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-15">
             <div>
             <TextArea                   
             label="Ingrese el titulo"

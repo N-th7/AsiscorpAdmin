@@ -7,7 +7,7 @@ export default function PresentationSection() {
         console.log("Archivo seleccionado:", file);
       };
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-20">
             
             <PresentationForm/>
             <ImageUploader 
