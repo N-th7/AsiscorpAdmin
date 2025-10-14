@@ -2,8 +2,8 @@
 
 import React, { useState, useRef } from "react";
 
-const ImageUploader = ({ label, placeholder, className, width, height, onChange }) => {
-  const [preview, setPreview] = useState(null);
+const ImageUploader = ({ label, placeholder, className, width, height, onChange, previewUrl }) => {
+  const [preview, setPreview] = useState (previewUrl ? previewUrl : null);
   const [error, setError] = useState("");
   const inputRef = useRef(null);
 

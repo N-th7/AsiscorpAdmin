@@ -1,44 +1,96 @@
+"use client";
 
-import React, {useState} from "react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import CertificationForm from "../molecules/CertificationForm";
 import PlusCard from "../atoms/PlusCard";
 
-export default function CertificationFomList() {
-const [cards, setCards] = useState([
-    { image: "", title: "" },
-  ]);
+export default function CertificationFormList() {
+  const [cards, setCards] = useState([]);
+  const [emptyCard, setEmptyCard] = useState({ image: "", title: "" });
+  const [error, setError] = useState("");
+  const [resetKey, setResetKey] = useState(0); 
 
-  // 🔹 Actualiza los datos de una card
-  const handleChange = (index, field, value) => {
-    const updated = [...cards];
-    updated[index][field] = value;
-    setCards(updated);
-    console.log(updated);
+  const handleChange = (id, field, value) => {
+    if (id === "empty") {
+      setEmptyCard((prev) => ({ ...prev, [field]: value }));
+    } else {
+      setCards((prev) =>
+        prev.map((card) =>
+          card.id === id ? { ...card, [field]: value } : card
+        )
+      );
+    }
   };
 
-  // 🔹 Agrega una nueva card si la última está completa
   const handleAddCard = () => {
-    const lastCard = cards[cards.length - 1];
-    const isComplete =
-      lastCard.image && lastCard.title.trim();
+    const isComplete = emptyCard.image && emptyCard.title.trim();
 
     if (!isComplete) {
-      alert("Por favor completa todos los campos antes de agregar otra tarjeta.");
+      setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
       return;
     }
 
-    setCards([...cards, { image: "", title: ""}]);
+    setError("");
+    const newCard = { ...emptyCard, id: crypto.randomUUID() };
+    setCards((prev) => [...prev, newCard]);
+    setEmptyCard({ image: "", title: "" });
+    setResetKey((prev) => prev + 1); 
+    console.log(cards)
   };
-    return (
-        <div className="grid grid-cols-1 p-7 sm:grid-cols-3 lg:grid-cols-6 gap-6 md:px-10 md:py-5 bg-[#EAEAEA] m-auto">
-            {cards.map((card, index) => (
-                    <CertificationForm
-                      key={index}
-                      formData={card}
-                      onChange={(field, value) => handleChange(index, field, value)}
-                    />
-                  ))}
-            <PlusCard onClick={handleAddCard }/>
-        </div>
-    );
+
+  // 🔹 Elimina una card
+  const handleDeleteCard = (id) => {
+    setCards((prev) => prev.filter((card) => card.id !== id));
+  };
+
+  return (
+    <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+        <AnimatePresence>
+          {cards.map((card) => (
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.25 }}
+            >
+              <CertificationForm
+                formData={card}
+                onChange={(field, value) => handleChange(card.id, field, value)}
+                onDelete={() => handleDeleteCard(card.id)}
+                showTrash={true}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        <CertificationForm
+          key={`empty-${resetKey}`} 
+          formData={emptyCard}
+          onChange={(field, value) => handleChange("empty", field, value)}
+          showTrash={false}
+        />
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          <PlusCard onClick={handleAddCard} />
+        </motion.div>
+      </div>
+
+      {error && (
+        <motion.p
+          className="text-red-500 text-sm mt-4 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          {error}
+        </motion.p>
+      )}
+    </div>
+  );
 }

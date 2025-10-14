@@ -3,8 +3,7 @@
 import React, {useState} from "react";
 import PresentationSection from "./components/templates/PresentationSection";
 import ValuesSection from "./components/templates/ValuesSection";
-import ServiceCardForm from "./components/organisms/ServiceCardForm";
-import ClientCardForm from "./components/molecules/ClientCardForm";
+import ServicesFormList from "./components/templates/ServicesFormList";
 import ClientCardList from "./components/organisms/ClientCardList";
 import SectionTitle from "./components/atoms/SectionTitle";
 import CertificationFomList from "./components/organisms/CertificationFomList";
@@ -25,7 +24,7 @@ const [formData, setFormData] = useState({
       <PresentationSection/>
       <ValuesSection/>
       <SectionTitle>Nuestros Servicios</SectionTitle>
-      <ServiceCardForm formData={formData}/>
+      <ServicesFormList></ServicesFormList>
       <SectionTitle>Nuestros Clientes</SectionTitle>
       <ClientCardList/>
 
