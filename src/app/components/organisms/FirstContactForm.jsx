@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import TextArea from "../atoms/TextArea";
 import Input from "../atoms/Input";
 
-export default function FirstContactForm({ onSubmit, onChange: externalOnChange, formData: externalFormData, isEdit = false }) {
+export default function FirstContactForm({ onSubmit, onChange: externalOnChange, }) {
   // Estado local del formulario (si no se pasa uno externo)
   const [formData, setFormData] = useState(
-    externalFormData || {
+ {
       title: "contacto principal",
       email: "",
       phone_number: "",
@@ -14,18 +14,12 @@ export default function FirstContactForm({ onSubmit, onChange: externalOnChange,
     }
   );
 
-  // Maneja los cambios en los inputs
   const handleChange = (field, value) => {
     const updatedForm = { ...formData, [field]: value };
     setFormData(updatedForm);
-
-    // Si hay un onChange externo, lo notificamos también
-    if (externalOnChange) externalOnChange(updatedForm);
-
     console.log(formData)
   };
 
-  // 🔹 Manejo del submit (si existe onSubmit externo)
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onSubmit) onSubmit(formData);
@@ -41,7 +35,7 @@ export default function FirstContactForm({ onSubmit, onChange: externalOnChange,
           placeholder="Ej. 77777777"
           maxLength={10}
           value={formData.cellphone_number}
-          onChange={(value) => handleChange("cellphone_number", value)}
+          onChange={(e) => handleChange("cellphone_number", e.target.value)}
         />
         <Input
           label="Correo electrónico"
@@ -50,7 +44,7 @@ export default function FirstContactForm({ onSubmit, onChange: externalOnChange,
           maxLength={50}
           placeholder="correo@ejemplo.com"
           value={formData.email}
-          onChange={(value) => handleChange("email", value)}
+          onChange={(e) => handleChange("email", e.target.value)}
         />
       </div>
 
@@ -62,7 +56,7 @@ export default function FirstContactForm({ onSubmit, onChange: externalOnChange,
           placeholder="Ej. 4412345"
           maxLength={10}
           value={formData.phone_number}
-          onChange={(value) => handleChange("phone_number", value)}
+          onChange={(e) => handleChange("phone_number", e.target.value)}
         />
         <TextArea
           label="Dirección"

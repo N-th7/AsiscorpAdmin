@@ -9,9 +9,8 @@ export default function ServicesFormList() {
   const [cards, setCards] = useState([]);
   const [emptyCard, setEmptyCard] = useState({ title: "", description: "", image: "" });
   const [error, setError] = useState("");
-  const [resetKey, setResetKey] = useState(0); // para reiniciar preview de imagen
+  const [resetKey, setResetKey] = useState(0);
 
-  // 🔹 Maneja cambios en cualquier card
   const handleChange = (id, field, value) => {
     if (id === "empty") {
       setEmptyCard((prev) => ({ ...prev, [field]: value }));
@@ -25,7 +24,6 @@ export default function ServicesFormList() {
     console.log(emptyCard)
   };
 
-  // 🔹 Agrega una nueva card si el formulario vacío está completo
   const handleAddCard = () => {
     const isComplete = emptyCard.title.trim() && emptyCard.description.trim() && emptyCard.image;
 
@@ -38,12 +36,10 @@ export default function ServicesFormList() {
     const newCard = { ...emptyCard, id: crypto.randomUUID() };
     setCards((prev) => [...prev, newCard]);
 
-    // 🔹 Limpiar formulario vacío y reiniciar preview
     setEmptyCard({ title: "", description: "", image: "" });
     setResetKey((prev) => prev + 1);
   };
 
-  // 🔹 Elimina una card
   const handleDeleteCard = (id) => {
     setCards((prev) => prev.filter((card) => card.id !== id));
   };
@@ -64,13 +60,12 @@ export default function ServicesFormList() {
                 formData={card}
                 onChange={(field, value) => handleChange(card.id, field, value)}
                 onDelete={() => handleDeleteCard(card.id)}
-                showTrash={true} // solo las agregadas tienen basurero
+                showTrash={true} 
               />
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {/* 🔹 Form vacío sin basurero, con key para reiniciar preview */}
         <ServiceCardForm
           key={`empty-${resetKey}`}
           formData={emptyCard}

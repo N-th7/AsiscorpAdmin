@@ -74,6 +74,8 @@ export default function ServiceCardForm({
             previewUrl={formData.image}
             onChange={(file, previewUrl) => onChange("image", previewUrl)}
             className="bg-white"
+
+            height={280}
           />
         </div>
       </div>
