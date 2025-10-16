@@ -27,14 +27,19 @@ export default function Input({
   const [internalError, setInternalError] = useState("");
 
   useEffect(() => {
-    if(type=="tel") {if (value && value.startsWith(prefix)) {
+  if (type === "tel") {
+    if (value && value.startsWith(prefix)) {
       setText(value);
     } else if (value) {
-      setText(prefix + value.replace(/^\+?[0-9]*/, ""));
+      const cleanValue = value.replace(/[^0-9]/g, "");
+      setText(prefix + cleanValue);
     } else {
       setText(prefix);
-    }}else{setText(value||"")}
-  }, [value, prefix]);
+    }
+  } else {
+    setText(value || "");
+  }
+}, [value, prefix]);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 

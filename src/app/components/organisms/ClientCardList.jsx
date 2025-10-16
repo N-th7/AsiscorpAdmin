@@ -1,17 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ClientCardForm from "../molecules/ClientCardForm";
 import PlusCard from "../atoms/PlusCard";
+import { getClients } from "@/app/api/clients";
 
 export default function ClientCardList() {
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState(null);
   const [emptyCard, setEmptyCard] = useState({ image: "", title: "", description: "" });
   const [error, setError] = useState("");
-  const [resetKey, setResetKey] = useState(0); // ✅ para limpiar el form vacío
+  const [resetKey, setResetKey] = useState(0);
 
-  // 🔹 Actualiza los datos de una card
+  const fetchData = async () => {
+    try {
+      const response = await getClients();
+      const clientsData = response?.data || [];
+      setCards(clientsData);
+      console.log("Datos de clientes obtenidos:", clientsData);
+    } catch (error) {
+      console.error("Error al obtener los datos de clientes:", error);
+    } 
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);  
+
   const handleChange = (id, field, value) => {
     if (id === "empty") {
       setEmptyCard((prev) => ({ ...prev, [field]: value }));
@@ -25,6 +40,7 @@ export default function ClientCardList() {
         console.log(cards)
 
   };
+
 
   // 🔹 Agrega una nueva card si el form vacío está completo
   const handleAddCard = () => {
@@ -52,7 +68,7 @@ export default function ClientCardList() {
     <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence>
-          {cards.map((card) => (
+          {cards && cards.map((card) => (
             <motion.div
               key={card.id}
               initial={{ opacity: 0, scale: 0.9 }}

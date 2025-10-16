@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ServiceCardForm from "../organisms/ServiceCardForm";
 import { Button } from "../atoms/Button";
+import {getServices} from "@/app/api/services";
 
 export default function ServicesFormList() {
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState(null);
   const [emptyCard, setEmptyCard] = useState({ title: "", description: "", image: "" });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
@@ -24,6 +25,21 @@ export default function ServicesFormList() {
     console.log(emptyCard)
   };
 
+  const fetchData = async () => {
+    try {
+      const response = await getServices();
+      const servicesData = response?.data || [];
+      setCards(servicesData);
+      console.log("Datos de servicios obtenidos:", servicesData);
+    } catch (error) {
+      console.error("Error al obtener los datos de servicios:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const handleAddCard = () => {
     const isComplete = emptyCard.title.trim() && emptyCard.description.trim() && emptyCard.image;
 
@@ -31,6 +47,7 @@ export default function ServicesFormList() {
       setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
       return;
     }
+    
 
     setError("");
     const newCard = { ...emptyCard, id: crypto.randomUUID() };
@@ -48,7 +65,7 @@ export default function ServicesFormList() {
     <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
       <div className="grid grid-cols-1 gap-7">
         <AnimatePresence>
-          {cards.map((card) => (
+          {cards && cards.map((card) => (
             <motion.div
               key={card.id}
               initial={{ opacity: 0, scale: 0.9 }}

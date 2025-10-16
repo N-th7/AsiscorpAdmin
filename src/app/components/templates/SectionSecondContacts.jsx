@@ -1,15 +1,34 @@
-import React ,{useState} from "react";
+import React ,{useState, useEffect} from "react";
 import SecondContactForm from "../organisms/SecondContactForm";
 import { Button } from "../atoms/Button";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { getContacts } from "@/app/api/contacts";
 
 export default function SectionSecondContacts(){
     const [cards, setCards] = useState([]);
     const [emptyCard, setEmptyCard] = useState({ title: "", phone_number: "", cellphone_number: "", email: "", address: "" });
       const [error, setError] = useState("");
       
+   const fetchData = async () => {
+    try {
+      const response = await getContacts();
+      let contactsData = response?.data || [];
+
+      contactsData = contactsData.filter((contact) => contact.id !== 1);
+
+      setCards(contactsData);
+      console.log("Datos de contactos obtenidos (sin id=1):", contactsData);
+    } catch (error) {
+      console.error("Error al obtener los datos de contactos:", error);
+      setError("No se pudieron cargar los contactos");
+    }
+  };
     
+      useEffect(() => {
+        fetchData();
+      }, []);
+
+
       const handleChange = (id, field, value) => {
         if (id === "empty") {
           setEmptyCard((prev) => ({ ...prev, [field]: value }));

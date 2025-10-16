@@ -1,15 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CertificationForm from "../molecules/CertificationForm";
 import PlusCard from "../atoms/PlusCard";
+import { getCertifications } from "@/app/api/certifications";
 
 export default function CertificationFormList() {
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState(null);
   const [emptyCard, setEmptyCard] = useState({ image: "", title: "" });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0); 
+
+const  fetchData = async () => {
+    try {
+      const response = await getCertifications();
+      const certificationsData = response?.data || [];
+      setCards(certificationsData);
+      console.log("Datos de certificaciones obtenidos:", certificationsData);
+    } catch (error) {
+      console.error("Error al obtener los datos de certificaciones:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleChange = (id, field, value) => {
     if (id === "empty") {
@@ -48,7 +64,7 @@ export default function CertificationFormList() {
     <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-6">
         <AnimatePresence>
-          {cards.map((card) => (
+          {cards && cards.map((card) => (
             <motion.div
               key={card.id}
               initial={{ opacity: 0, scale: 0.9 }}

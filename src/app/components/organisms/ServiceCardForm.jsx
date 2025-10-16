@@ -71,7 +71,7 @@ export default function ServiceCardForm({
           <ImageUploader
             name="image"
             placeholder="/imagen.png"
-            previewUrl={formData.image}
+            previewUrl={formData.image || null}             
             onChange={(file, previewUrl) => onChange("image", previewUrl)}
             className="bg-white"
 

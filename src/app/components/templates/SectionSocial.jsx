@@ -1,14 +1,29 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import SocialMediaForm from "../organisms/SocialMediaForm";
 import { Button } from "../atoms/Button";
 import { motion, AnimatePresence } from "framer-motion";
+import { getLinks } from "@/app/api/links";
 
 
 export default function SectionSocial(){
 const [emptyCard,setEmptyCard]=useState({ title: "", website_url: "", image: "",});
-const [cards,setCards]=useState([]);
+const [cards,setCards]=useState(null);
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
+  const fetchData = async () => {
+    try {
+      const response = await getLinks();
+      const linksData = response?.data || [];
+      setCards(linksData);
+      console.log("Datos de enlaces obtenidos:", linksData);
+    } catch (error) {
+      console.error("Error al obtener los datos de enlaces:", error);
+    } 
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
 const handleChange = (id, field, value) => {
     if (id === "empty") {
@@ -47,7 +62,7 @@ const handleChange = (id, field, value) => {
 
     return(
         <div className="lg:px-30">
-            {cards.map((card, index)=>(
+            {cards && cards.map((card, index)=>(
                  <motion.div
               key={card.id}
               initial={{ opacity: 0, scale: 0.9 }}
