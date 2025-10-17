@@ -9,16 +9,15 @@ export default function ClientCardForm({
   formData,
   showTrash = true, // ✅ controla si se muestra el basurero
 }) {
-  formData = formData || { image: "", title: "", description: "" };
+  formData = formData || { image: "", title: "", text: "", imagePreview: "" };
 
-  // 🔹 Limpia los campos si no hay onDelete
   const handleDelete = () => {
     if (onDelete) {
       onDelete();
     } else if (onChange) {
       onChange("image", "");
       onChange("title", "");
-      onChange("description", "");
+      onChange("text", "");
     }
   };
 
@@ -36,19 +35,20 @@ export default function ClientCardForm({
         </button>
       )}
 
-      {/* 🔹 Imagen del cliente */}
       <ImageUploader
-        key={formData.image || "empty"} // ✅ resetea preview si se limpia
+        key={formData.imagePreview || "empty"}
         name="image"
         placeholder={"/imagen.png"}
-        previewUrl={formData.image}
+        previewUrl={formData.imagePreview || null}
         width={130}
         height={130}
-        onChange={(file, previewUrl) => onChange("image", previewUrl)}
+        onChange={(file, previewUrl) => {
+          onChange("image", file);          
+          onChange("imagePreview", previewUrl); 
+        }}
         required
       />
 
-      {/* 🔹 Título */}
       <TextArea
         label="Ingrese el título."
         name="title"
@@ -59,14 +59,13 @@ export default function ClientCardForm({
         required
       />
 
-      {/* 🔹 Descripción */}
       <TextArea
         label="Ingrese una descripción."
-        name="description"
+        name="text"
         maxLength={200}
         labelSize={10}
-        value={formData.description}
-        onChange={(e) => onChange("description", e.target.value)}
+        value={formData.text}
+        onChange={(e) => onChange("text", e.target.value)}
         required
       />
     </div>

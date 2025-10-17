@@ -13,7 +13,7 @@ export default function ServiceCardForm({
   showTrash = true,
 }) {
 
-  formData = formData || { image: "", title: "", description: "" };
+  formData = formData || { image: "", title: "", text: "" };
 
 
   const handleDelete = () => {
@@ -22,7 +22,7 @@ export default function ServiceCardForm({
     } else if (onChange) {
       onChange("image", "");
       onChange("title", "");
-      onChange("description", "");
+      onChange("text", "");
     }
   };
 
@@ -59,10 +59,10 @@ export default function ServiceCardForm({
           <TextArea
             height={200}
             label="Ingrese la descripción"
-            name="description"
+            name="text"
             maxLength={500}
-            value={formData.description}
-            onChange={(e) => onChange("description", e.target.value)}
+            value={formData.text}
+            onChange={(e) => onChange("text", e.target.value)}
             required
           />
         </div>
@@ -71,12 +71,15 @@ export default function ServiceCardForm({
           <ImageUploader
             name="image"
             placeholder="/imagen.png"
-            previewUrl={formData.image || null}             
-            onChange={(file, previewUrl) => onChange("image", previewUrl)}
+            previewUrl={formData.imagePreview || formData.image || null}
+            onChange={(file, previewUrl) => {
+              onChange("image", file); // 🔹 guarda el archivo real
+              onChange("imagePreview", previewUrl); // 🔹 guarda el preview para mostrar
+            }}
             className="bg-white"
-
             height={280}
           />
+
         </div>
       </div>
 

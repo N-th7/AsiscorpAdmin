@@ -4,11 +4,16 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ClientCardForm from "../molecules/ClientCardForm";
 import PlusCard from "../atoms/PlusCard";
-import { getClients } from "@/app/api/clients";
+import { getClients, createClient } from "@/app/api/clients";
 
 export default function ClientCardList() {
   const [cards, setCards] = useState(null);
-  const [emptyCard, setEmptyCard] = useState({ image: "", title: "", description: "" });
+const [emptyCard, setEmptyCard] = useState({
+  image: null,          
+  imagePreview: null,  
+  title: "",
+  text: "",
+});
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
 
@@ -42,24 +47,46 @@ export default function ClientCardList() {
   };
 
 
-  // 🔹 Agrega una nueva card si el form vacío está completo
-  const handleAddCard = () => {
-    const isComplete =
-      emptyCard.image && emptyCard.title.trim() && emptyCard.description.trim();
+const handleAddCard = async () => {
+  const isComplete =
+    emptyCard.image && emptyCard.title.trim() && emptyCard.text.trim();
 
-    if (!isComplete) {
-      setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
-      return;
+  if (!isComplete) {
+    setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
+    return;
+  }
+
+  try {
+    setError("");
+
+    const formData = new FormData();
+    formData.append("title", emptyCard.title);
+    formData.append("text", emptyCard.text);
+    formData.append("image", emptyCard.image);
+
+    const response = await createClient(formData);
+
+    if (response?.data) {
+      const newClient = response.data;
+      setCards((prev) => [...(prev || []), newClient]);
     }
 
-    setError("");
-    const newCard = { ...emptyCard, id: crypto.randomUUID() };
-    setCards((prev) => [...prev, newCard]);
-    setEmptyCard({ image: "", title: "", description: "" });
-    setResetKey((prev) => prev + 1); // ✅ limpia los inputs e imagen
-  };
+    setEmptyCard({
+      image: null,
+      imagePreview: null,
+      title: "",
+      text: "",
+    });
+    setResetKey((prev) => prev + 1);
 
-  // 🔹 Elimina una card por id
+    console.log("✅ Cliente creado correctamente");
+  } catch (error) {
+    console.error("Error al crear cliente:", error);
+    setError("❌ Error al crear el cliente");
+  }
+};
+
+
   const handleDeleteCard = (id) => {
     setCards((prev) => prev.filter((card) => card.id !== id));
   };
@@ -80,13 +107,12 @@ export default function ClientCardList() {
                 formData={card}
                 onChange={(field, value) => handleChange(card.id, field, value)}
                 onDelete={() => handleDeleteCard(card.id)}
-                showTrash={true} // ✅ Solo las tarjetas agregadas tienen basurero
+                showTrash={true} 
               />
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {/* 🔹 Form vacío sin basurero */}
         <ClientCardForm
           key={`empty-${resetKey}`}
           formData={emptyCard}
@@ -94,7 +120,6 @@ export default function ClientCardList() {
           showTrash={false}
         />
 
-        {/* 🔹 Botón de agregar */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}

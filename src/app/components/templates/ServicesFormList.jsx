@@ -4,13 +4,41 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ServiceCardForm from "../organisms/ServiceCardForm";
 import { Button } from "../atoms/Button";
-import {getServices} from "@/app/api/services";
+import {getServices, createService, deleteService} from "@/app/api/services";
+import ConfirmModal from "../molecules/ConfirmModal";
 
 export default function ServicesFormList() {
   const [cards, setCards] = useState(null);
-  const [emptyCard, setEmptyCard] = useState({ title: "", description: "", image: "" });
+  const [emptyCard, setEmptyCard] = useState({
+    title: "",
+    text: "",
+    image: null, 
+    imagePreview: null,
+  });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
+
+  const [serviceToDelete, setServiceToDelete] = useState(null);
+
+  const handleDeleteCard = (id) => {
+    setServiceToDelete(id); 
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteService(serviceToDelete);
+      setCards((prev) => prev.filter((c) => c.id !== serviceToDelete));
+      console.log("✅ Servicio eliminado");
+    } catch (error) {
+      console.error("Error al eliminar servicio:", error);
+      setError("❌ Error al eliminar el servicio");
+    } finally {
+      setServiceToDelete(null); // cierra el modal
+    }
+  };
+
+  const cancelDelete = () => setServiceToDelete(null);
+
 
   const handleChange = (id, field, value) => {
     if (id === "empty") {
@@ -24,6 +52,7 @@ export default function ServicesFormList() {
     }
     console.log(emptyCard)
   };
+
 
   const fetchData = async () => {
     try {
@@ -40,26 +69,63 @@ export default function ServicesFormList() {
     fetchData();
   }, []);
 
-  const handleAddCard = () => {
-    const isComplete = emptyCard.title.trim() && emptyCard.description.trim() && emptyCard.image;
+  const handleAddCard = async () => {
+  const isComplete = emptyCard.title.trim() && emptyCard.text.trim() && emptyCard.image;
 
-    if (!isComplete) {
-      setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
-      return;
-    }
-    
+  if (!isComplete) {
+    setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
+    return;
+  }
 
+  try {
     setError("");
-    const newCard = { ...emptyCard, id: crypto.randomUUID() };
-    setCards((prev) => [...prev, newCard]);
 
-    setEmptyCard({ title: "", description: "", image: "" });
+    // Crear el nuevo servicio en backend
+    const newService = await handleCreateService(emptyCard);
+
+    // Agregar el nuevo servicio a la lista (con el id real del backend)
+    if (newService) {
+      setCards((prev) => [...(prev || []), newService]);
+    }
+
+    // Limpiar formulario
+    setEmptyCard({
+      title: "",
+      text: "",
+      image: null,
+      imagePreview: null,
+    });
     setResetKey((prev) => prev + 1);
-  };
 
-  const handleDeleteCard = (id) => {
-    setCards((prev) => prev.filter((card) => card.id !== id));
-  };
+  } catch (error) {
+    console.error("Error al agregar servicio:", error);
+    setError("❌ No se pudo agregar el servicio.");
+  }
+};
+
+
+  const handleCreateService = async (data) => {
+  try {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("text", data.text);
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+
+    const response = await createService(formData);
+    console.log("✅ Nuevo servicio:", response.data);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error al crear servicio:", error);
+    setError("❌ Error al crear el servicio");
+    return null;
+  }
+};
+
+
 
   return (
     <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
@@ -89,6 +155,11 @@ export default function ServicesFormList() {
           onChange={(field, value) => handleChange("empty", field, value)}
           showTrash={false}
         />
+         <ConfirmModal
+        open={!!serviceToDelete}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
       </div>
 
       {error && (
