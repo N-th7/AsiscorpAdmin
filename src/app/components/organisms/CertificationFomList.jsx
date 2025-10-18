@@ -5,12 +5,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import CertificationForm from "../molecules/CertificationForm";
 import PlusCard from "../atoms/PlusCard";
 import { getCertifications, createCertification, deleteCertification } from "@/app/api/certifications";
+import ConfirmModal from "../molecules/ConfirmModal";
+
 
 export default function CertificationFormList() {
   const [cards, setCards] = useState(null);
   const [emptyCard, setEmptyCard] = useState({ image: "", title: "", imagePreview: "" });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0); 
+  const [certificationToDelete, setCertificationToDelete] = useState(null);
 
 const  fetchData = async () => {
     try {
@@ -79,8 +82,23 @@ const  fetchData = async () => {
   };
   
   const handleDeleteCard = (id) => {
-    setCards((prev) => prev.filter((card) => card.id !== id));
+    setCertificationToDelete(id); 
   };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteCertification(certificationToDelete);
+      setCards((prev) => prev.filter((c) => c.id !== certificationToDelete));
+      console.log("✅ certificacion eliminado");
+    } catch (error) {
+      console.error("Error al eliminar certificacion:", error);
+      setError("❌ Error al eliminar el certificacion");
+    } finally {
+      setCertificationToDelete(null); 
+    }
+  };
+
+  const cancelDelete = () => setCertificationToDelete(null);
 
   return (
     <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
@@ -110,6 +128,13 @@ const  fetchData = async () => {
           onChange={(field, value) => handleChange("empty", field, value)}
           showTrash={false}
         />
+
+        <ConfirmModal
+                open={!!certificationToDelete}
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+                label="certificacion"
+              />        
 
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}

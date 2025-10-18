@@ -1,26 +1,27 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ClientCardForm from "../molecules/ClientCardForm";
 import PlusCard from "../atoms/PlusCard";
-import { getClients, createClient ,deleteClient } from "@/app/api/clients";
+import { getClients, createClient ,deleteClient, updateClient } from "@/app/api/clients";
 import ConfirmModal from "../molecules/ConfirmModal";
 
 
 export default function ClientCardList() {
   
   const [cards, setCards] = useState(null);
-const [emptyCard, setEmptyCard] = useState({
-  image: null,          
-  imagePreview: null,  
-  title: "",
-  text: "",
-});
+  const [emptyCard, setEmptyCard] = useState({
+    image: null,          
+    imagePreview: null,  
+    title: "",
+    text: "",
+  });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
-
-   const [clientToDelete, setClientToDelete] = useState(null);
+   const debounceRefs = useRef({});
+  const [clientToDelete, setClientToDelete] = useState(null);
+  
   
     const handleDeleteCard = (id) => {
       setClientToDelete(id); 
@@ -55,18 +56,49 @@ const [emptyCard, setEmptyCard] = useState({
   }, []);  
 
   const handleChange = (id, field, value) => {
-    if (id === "empty") {
-      setEmptyCard((prev) => ({ ...prev, [field]: value }));
-    } else {
-      setCards((prev) =>
-        prev.map((card) =>
-          card.id === id ? { ...card, [field]: value } : card
-        )
-      );
-    }
-        console.log(cards)
+  if (id === "empty") {
+    setEmptyCard((prev) => ({ ...prev, [field]: value }));
+    return;
+  }
 
-  };
+  setCards((prev) =>
+    prev.map((card) =>
+      card.id === id ? { ...card, [field]: value } : card
+    )
+  );
+
+  // Limpiar debounce previo
+  if (debounceRefs.current[id]) clearTimeout(debounceRefs.current[id]);
+
+  // Crear nuevo debounce
+  debounceRefs.current[id] = setTimeout(async () => {
+    try {
+      const updatedCard = cards.find((card) => card.id === id);
+      if (!updatedCard) return;
+
+     if (field === "image" && value instanceof File) {
+  console.log("🖼️ Nueva imagen detectada:", value.name);
+  const formData = new FormData();
+  formData.append("title", updatedCard.title);
+  formData.append("text", updatedCard.text);
+  formData.append("image", value);
+
+  await updateClient(id, formData, true);
+  console.log(`✅ Imagen del cliente ${id} actualizada correctamente`);
+}
+ else {
+        // ✅ Si se cambió texto o título
+        await updateClient(id, { [field]: value });
+        console.log(`✅ Cliente ${id} actualizado en backend.`);
+      }
+    } catch (error) {
+      console.error(`❌ Error al actualizar cliente ${id}:`, error);
+      setError("No se pudo guardar el cambio.");
+    }
+  }, 800);
+};
+
+
 
 
 const handleAddCard = async () => {
@@ -142,6 +174,7 @@ const handleAddCard = async () => {
                 open={!!clientToDelete}
                 onConfirm={confirmDelete}
                 onCancel={cancelDelete}
+                label="cliente"
               />
 
         <motion.div

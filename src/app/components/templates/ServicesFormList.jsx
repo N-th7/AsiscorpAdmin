@@ -80,10 +80,8 @@ export default function ServicesFormList() {
   try {
     setError("");
 
-    // Crear el nuevo servicio en backend
     const newService = await handleCreateService(emptyCard);
 
-    // Agregar el nuevo servicio a la lista (con el id real del backend)
     if (newService) {
       setCards((prev) => [...(prev || []), newService]);
     }
@@ -159,6 +157,7 @@ export default function ServicesFormList() {
         open={!!serviceToDelete}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+        label="servicio"
       />
       </div>
 

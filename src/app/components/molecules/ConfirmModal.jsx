@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ConfirmModal({ open, onConfirm, onCancel }) {
+export default function ConfirmModal({ open, onConfirm, onCancel, label }) {
   if (!open) return null;
 
   return (
@@ -19,7 +19,7 @@ export default function ConfirmModal({ open, onConfirm, onCancel }) {
           transition={{ duration: 0.2 }}
         >
           <h2 className="text-lg font-semibold mb-3 text-gray-800">
-            ¿Eliminar servicio?
+            ¿Eliminar {label}?
           </h2>
           <p className="text-gray-600 mb-5 text-sm">
             Esta acción no se puede deshacer.
