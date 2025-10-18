@@ -4,11 +4,11 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CertificationForm from "../molecules/CertificationForm";
 import PlusCard from "../atoms/PlusCard";
-import { getCertifications } from "@/app/api/certifications";
+import { getCertifications, createCertification, deleteCertification } from "@/app/api/certifications";
 
 export default function CertificationFormList() {
   const [cards, setCards] = useState(null);
-  const [emptyCard, setEmptyCard] = useState({ image: "", title: "" });
+  const [emptyCard, setEmptyCard] = useState({ image: "", title: "", imagePreview: "" });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0); 
 
@@ -37,25 +37,47 @@ const  fetchData = async () => {
         )
       );
     }
+    console.log(emptyCard)
   };
 
-  const handleAddCard = () => {
-    const isComplete = emptyCard.image && emptyCard.title.trim();
 
+  const handleAddCard = async () => {
+    const isComplete =
+      emptyCard.image && emptyCard.title.trim() ;
+  
     if (!isComplete) {
       setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
       return;
     }
-
-    setError("");
-    const newCard = { ...emptyCard, id: crypto.randomUUID() };
-    setCards((prev) => [...prev, newCard]);
-    setEmptyCard({ image: "", title: "" });
-    setResetKey((prev) => prev + 1); 
-    console.log(cards)
+  
+    try {
+      setError("");
+  
+      const formData = new FormData();
+      formData.append("title", emptyCard.title);
+      formData.append("image", emptyCard.image);
+  
+      const response = await createCertification(formData);
+  
+      if (response?.data) {
+        const newCertification = response.data;
+        setCards((prev) => [...(prev || []), newCertification]);
+      }
+  
+      setEmptyCard({
+        image: null,
+        imagePreview: null,
+        title: "",
+      });
+      setResetKey((prev) => prev + 1);
+  
+      console.log("✅ Certificacion creado correctamente");
+    } catch (error) {
+      console.error("Error al crear Certificacion:", error);
+      setError("❌ Error al crear el Certificacion");
+    }
   };
-
-  // 🔹 Elimina una card
+  
   const handleDeleteCard = (id) => {
     setCards((prev) => prev.filter((card) => card.id !== id));
   };

@@ -4,9 +4,12 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ClientCardForm from "../molecules/ClientCardForm";
 import PlusCard from "../atoms/PlusCard";
-import { getClients, createClient } from "@/app/api/clients";
+import { getClients, createClient ,deleteClient } from "@/app/api/clients";
+import ConfirmModal from "../molecules/ConfirmModal";
+
 
 export default function ClientCardList() {
+  
   const [cards, setCards] = useState(null);
 const [emptyCard, setEmptyCard] = useState({
   image: null,          
@@ -16,6 +19,25 @@ const [emptyCard, setEmptyCard] = useState({
 });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
+
+   const [clientToDelete, setClientToDelete] = useState(null);
+  
+    const handleDeleteCard = (id) => {
+      setClientToDelete(id); 
+    };
+  
+    const confirmDelete = async () => {
+      try {
+        await deleteClient(clientToDelete);
+        setCards((prev) => prev.filter((c) => c.id !== clientToDelete));
+      } catch (error) {
+        setError("❌ Error al eliminar el cliente");
+      } finally {
+        setClientToDelete(null); 
+      }
+    };
+  
+    const cancelDelete = () => setClientToDelete(null);
 
   const fetchData = async () => {
     try {
@@ -87,9 +109,6 @@ const handleAddCard = async () => {
 };
 
 
-  const handleDeleteCard = (id) => {
-    setCards((prev) => prev.filter((card) => card.id !== id));
-  };
 
   return (
     <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
@@ -119,6 +138,11 @@ const handleAddCard = async () => {
           onChange={(field, value) => handleChange("empty", field, value)}
           showTrash={false}
         />
+        <ConfirmModal
+                open={!!clientToDelete}
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+              />
 
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}

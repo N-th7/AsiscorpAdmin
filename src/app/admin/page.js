@@ -14,10 +14,9 @@ import SectionTitle from "../components/atoms/SectionTitle";
 import { useAuth } from "@/hooks/useAuth";
 import {logout} from "@/app/api/auth";
 import { useRouter } from "next/navigation";
-
 export default function Home() {
   const { authenticated, loading } = useAuth();
-  
+    const router = useRouter();
 const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -27,16 +26,17 @@ const [formData, setFormData] = useState({
  const handleLogout = async () => {
     try {
       await logout();
-
+      router.push("/");
     } catch (err) {
       alert("No se pudo cerrar sesión correctamente");
+      console.log(err);
     }
   };
 
   if (loading) return <p>Cargando...</p>;
   if (!authenticated) return null ;
   return (
-    <div className=" md:p-20 p-10 md:px-30" >
+    <div className=" md:p-20 p-10 md:px-30 min-h-screen bg-white text-black" >
       <button
         onClick={handleLogout}
         className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"

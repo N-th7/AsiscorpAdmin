@@ -1,4 +1,13 @@
 import api from "./api";
+import { navigate } from "next/navigation";
+// Manejo de sesión expirada  
+
+
+export function handleSessionExpired() {
+  console.warn("⚠️ Sesión expirada.");
+  window.location.href = "/";
+}
+
 
 // REGISTER
 export async function register(name, email, password) {
@@ -36,8 +45,11 @@ export async function refreshToken() {
 
 // LOGOUT
 export const logout = async () => {
-  await api.post("/auth/logout");
-  localStorage.removeItem("accessToken");
-  router.push("/");
+  try {
+    await api.post("/auth/logout");
+    localStorage.removeItem("accessToken");
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  }
 };
 

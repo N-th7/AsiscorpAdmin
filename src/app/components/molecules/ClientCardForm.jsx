@@ -1,3 +1,4 @@
+'use client';
 import React from "react";
 import ImageUploader from "../atoms/ImageUploader";
 import TextArea from "../atoms/TextArea";
@@ -39,7 +40,7 @@ export default function ClientCardForm({
         key={formData.imagePreview || "empty"}
         name="image"
         placeholder={"/imagen.png"}
-        previewUrl={formData.imagePreview || null}
+        previewUrl={formData.imagePreview || formData.image || null}
         width={130}
         height={130}
         onChange={(file, previewUrl) => {
@@ -48,6 +49,7 @@ export default function ClientCardForm({
         }}
         required
       />
+
 
       <TextArea
         label="Ingrese el título."

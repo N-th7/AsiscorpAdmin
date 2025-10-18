@@ -1,3 +1,5 @@
+'use client';
+
 import React from "react";
 import ImageUploader from "../atoms/ImageUploader";
 import TextArea from "../atoms/TextArea";
@@ -26,8 +28,11 @@ export default function CertificationForm({
         name="image"
         placeholder={"/imagen.png"}
         height={130}
-        previewUrl={formData.image}
-        onChange={(file, previewUrl) => onChange("image", previewUrl)}
+        previewUrl={formData.imagePreview || formData.image || null}
+        onChange={(file, previewUrl) => {
+          onChange("image", file);          
+          onChange("imagePreview", previewUrl); 
+        }}
       />
 
       <TextArea
