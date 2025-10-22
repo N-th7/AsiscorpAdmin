@@ -25,7 +25,7 @@ export default function SecondContactForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative bg-white rounded-2xl p-4 shadow-sm"
+      className="relative bg-white rounded-2xl p-4 shadow-2xl"
     >
       {showTrash && (
         <button
