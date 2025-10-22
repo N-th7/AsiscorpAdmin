@@ -1,36 +1,35 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
 import TextArea from "../atoms/TextArea";
 import ImageUploader from "../atoms/ImageUploader";
-import { getIntroductionByName } from "@/app/api/introductions";
+import { getIntroductionByName, updateIntroduction } from "@/app/api/introductions";
 
-export default function CoverageForm({
-  onSubmit,
-  onChange: externalOnChange,
-  formData: externalFormData,
-}) {
+export default function CoverageForm() {
   const [formData, setFormData] = useState(null);
+  const debounceRef = useRef(null);
 
   const fetchData = async () => {
     try {
-      const response = await getIntroductionByName("Covarage");
-
+      const response = await getIntroductionByName("Covarage"); 
       if (response?.data) {
         setFormData({
           id: response.data.id || "",
           text: response.data.text || "",
           image: response.data.image || null,
+          previewUrl: response.data.image || null,
         });
       } else {
         setFormData({
           id: "",
           text: "",
           image: null,
+          previewUrl: null,
         });
       }
-
-      console.log("Datos de cobertura obtenidos:", response?.data);
+      console.log("✅ Datos de cobertura obtenidos:", response?.data);
     } catch (error) {
-      console.error("Error al obtener los datos de cobertura:", error);
+      console.error("❌ Error al obtener los datos de cobertura:", error);
     }
   };
 
@@ -38,46 +37,68 @@ export default function CoverageForm({
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (externalFormData) setFormData(externalFormData);
-  }, [externalFormData]);
-
   const handleChange = (field, value) => {
     const updatedForm = { ...formData, [field]: value };
     setFormData(updatedForm);
-    if (externalOnChange) externalOnChange(updatedForm);
-    console.log(formData);
-  };
+    console.log(formData)
+    if (debounceRef.current) clearTimeout(debounceRef.current);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onSubmit) onSubmit(formData);
+    debounceRef.current = setTimeout(async () => {
+      if (!updatedForm?.id) return;
+
+      const data = new FormData();
+      data.append("text", updatedForm.text || "");
+      if (updatedForm.image instanceof File) {
+        data.append("image", updatedForm.image);
+      }
+
+      try {
+        console.log("🚀 Guardando cambios de cobertura...");
+        const response = await updateIntroduction(updatedForm.id, data);
+
+        if (response?.data) {
+          setFormData((prev) => ({
+            ...prev,
+            text: response.data.text ?? prev.text,
+            image: response.data.image ?? prev.image,
+            previewUrl: response.data.image
+              ? `${response.data.image}?t=${Date.now()}`
+              : prev.previewUrl,
+          }));
+        }
+        console.log("✅ Cobertura actualizada correctamente.");
+      } catch (err) {
+        console.error("❌ Error al guardar cobertura:", err);
+      }
+    }, 800);
   };
 
   return (
     <>
       {formData && (
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-12 h-full lg:px-20"
-        >
-          <TextArea
-            label="Ingrese la descripción"
-            name="text"
-            maxLength={500}
-            labelSize={10}
-            height={400}
-            required
-            value={formData.text}
-            onChange={(e) => handleChange("text", e.target.value)}
-          />
+        <form className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-12 h-full lg:px-20">
+          {/* 📝 Texto */}
+          <div className="relative">
+            <TextArea
+              label="Ingrese la descripción"
+              name="text"
+              maxLength={500}
+              labelSize={10}
+              height={400}
+              required
+              value={formData.text}
+              onChange={(e) => handleChange("text", e.target.value)}
+            />
+          </div>
 
           <div className="flex justify-center items-center">
             <ImageUploader
               name="image"
               placeholder="/imagen.png"
-              previewUrl={formData.image || null}
-              onChange={(file, previewUrl) => handleChange("image", previewUrl)}
+              previewUrl={formData.previewUrl || null}
+              onChange={(file, previewUrl) => {
+                handleChange("image", file);
+              }}
               height={400}
               width="100%"
             />

@@ -25,7 +25,6 @@ export default function ClientCardList() {
   const [clientToDelete, setClientToDelete] = useState(null);
   const debounceRefs = useRef({});
 
-  // 🔹 Obtener clientes al cargar
   const fetchData = async () => {
     try {
       const response = await getClients();
@@ -42,22 +41,18 @@ export default function ClientCardList() {
     fetchData();
   }, []);
 
-  // 🔹 Actualizar campos o imagen de cliente
   const handleChange = (id, field, value) => {
     if (id === "empty") {
       setEmptyCard((prev) => ({ ...prev, [field]: value }));
       return;
     }
 
-    // Actualiza el estado local inmediatamente
     setCards((prev) =>
       prev.map((card) => (card.id === id ? { ...card, [field]: value } : card))
     );
 
-    // Cancela debounce anterior
     if (debounceRefs.current[id]) clearTimeout(debounceRefs.current[id]);
 
-    // Crea un nuevo debounce
     debounceRefs.current[id] = setTimeout(async () => {
       try {
         // ✅ Tomamos el estado más reciente de las cards

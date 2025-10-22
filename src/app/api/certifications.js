@@ -6,5 +6,7 @@ export const createCertification = (data) =>
     api.post("/certifications", data, {
     headers: { "Content-Type": "multipart/form-data" },
   });   
-export const updateCertification = (id, data) => api.put(`/certifications/${id}`, data);
+export const updateCertification = (id, data) => api.put(`/certifications/${id}`, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 export const deleteCertification = (id) => api.delete(`/certifications/${id}`);

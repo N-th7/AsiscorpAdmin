@@ -1,37 +1,35 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
 import TextArea from "../atoms/TextArea";
 import Input from "../atoms/Input";
-import { getContactById } from "@/app/api/contacts";
+import { getContactById, updateContact } from "@/app/api/contacts";
 
-export default function FirstContactForm({ onSubmit, onChange: externalOnChange }) {
+export default function FirstContactForm() {
   const [formData, setFormData] = useState(null);
+  const debounceRef = useRef(null);
+  const formRef = useRef(formData);
+
+  useEffect(() => {
+    formRef.current = formData;
+  }, [formData]);
 
   const fetchData = async () => {
     try {
       const response = await getContactById(1);
+      const data = response?.data || {};
 
-      if (response?.data) {
-        setFormData({
-          id: response.data.id || "",
-          email: response.data.email || "",
-          phone_number: response.data.phone_number || "",
-          cellphone_number: response.data.cellphone_number || "",
-          address: response.data.address || "",
-        });
-      } else {
-        setFormData({
-          id: "",
-          email: "",
-          phone_number: "",
-          cellphone_number: "",
-          address: "",
-        });
-      }
+      setFormData({
+        id: data.id || "",
+        email: data.email || "",
+        phone_number: data.phone_number || "",
+        cellphone_number: data.cellphone_number || "",
+        address: data.address || "",
+      });
 
-      console.log("Datos de contacto obtenidos:", response?.data);
-      console.log(formData)
+      console.log("✅ Datos de contacto obtenidos:", data);
     } catch (error) {
-      console.error("Error al obtener los datos de contacto:", error);
+      console.error("❌ Error al obtener los datos de contacto:", error);
     }
   };
 
@@ -40,25 +38,32 @@ export default function FirstContactForm({ onSubmit, onChange: externalOnChange 
   }, []);
 
   const handleChange = (field, value) => {
-    const updatedForm = { ...formData, [field]: value };
+    const updatedForm = { ...formRef.current, [field]: value };
     setFormData(updatedForm);
 
-    if (externalOnChange) externalOnChange(updatedForm);
-    console.log(formData);
-  };
+    if (debounceRef.current) clearTimeout(debounceRef.current);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onSubmit) onSubmit(formData);
+    debounceRef.current = setTimeout(async () => {
+      if (!updatedForm?.id) return;
+
+      try {
+        const response = await updateContact(updatedForm.id, updatedForm);
+        if (response?.data) {
+          setFormData(response.data);
+          console.log("✅ Contacto actualizado:", response.data);
+        }
+      } catch (err) {
+        console.error("❌ Error al guardar contacto:", err);
+      } 
+    }, 800);
   };
 
   return (
     <>
       {formData && (
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-5 bg-white p-6 rounded-xl shadow-sm"
-        >
+        <form className="grid grid-cols-1 lg:grid-cols-2 gap-5 bg-white p-6 rounded-xl shadow-sm relative">
+
+
           <div className="flex flex-col gap-4">
             <Input
               label="Número de celular"

@@ -1,21 +1,76 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
 import ValueCard from "../molecules/ValueCard";
-import { getIntroductionByName } from "@/app/api/introductions";
+import { getIntroductionByName, updateIntroduction } from "@/app/api/introductions";
 
 export default function ValuesSection() {
   const [cards, setCards] = useState({
-    Misión: { id: "", image: null, description: "" },
-    Visión: { id: "", image: null, description: "" },
-    Valores: { id: "", image: null, description: "" },
+    Misión: { id: "", image: null, description: "", previewUrl: null },
+    Visión: { id: "", image: null, description: "", previewUrl: null },
+    Valores: { id: "", image: null, description: "", previewUrl: null },
   });
+
   const [formLoaded, setFormLoaded] = useState(false);
+  const debounceRefs = useRef({});
+  const cardsRef = useRef(cards);
+
+  // Mantener referencia actualizada al estado
+  useEffect(() => {
+    cardsRef.current = cards;
+  }, [cards]);
 
   const handleChange = (key, newData) => {
+    console.log("cambios", newData)
     setCards((prev) => ({
       ...prev,
       [key]: { ...prev[key], ...newData },
     }));
-    console.log(cards);
+
+    const id = cards[key]?.id;
+    if (!id) return;
+
+    // Limpiar debounce anterior
+    if (debounceRefs.current[id]) clearTimeout(debounceRefs.current[id]);
+
+    // Crear nuevo debounce
+    debounceRefs.current[id] = setTimeout(async () => {
+      const currentCard = cardsRef.current[key];
+      if (!currentCard?.id) return;
+
+      const formData = new FormData();
+      formData.append("title", key);
+      formData.append("text", currentCard.description || "");
+
+      if (currentCard.image instanceof File) {
+        formData.append("image", currentCard.image);
+      }
+
+      try {
+        console.log(`🚀 Enviando actualización de ${key}`);
+        for (let [k, v] of formData.entries()) console.log(k, v);
+
+        const response = await updateIntroduction(currentCard.id, formData);
+
+        if (response?.data) {
+          setCards((prev) => ({
+            ...prev,
+            [key]: {
+              ...prev[key],
+              description: response.data.text ?? prev[key].description,
+              image: response.data.image ?? prev[key].image,
+              previewUrl: response.data.image
+                ? `${response.data.image}?t=${Date.now()}`
+                : prev[key].previewUrl,
+            },
+          }));
+        }
+
+        console.log(`✅ ${key} actualizado correctamente.`);
+      } catch (err) {
+        console.error(`❌ Error al actualizar ${key}:`, err);
+      }
+    }, 800);
   };
 
   const fetchData = async () => {
@@ -46,19 +101,15 @@ export default function ValuesSection() {
 
       setCards(updatedCards);
       setFormLoaded(true);
-      console.log("Datos de introducción obtenidos:", updatedCards);
+      console.log("✅ Datos obtenidos correctamente:", updatedCards);
     } catch (error) {
-      console.error("Error al obtener los datos de introducción:", error);
+      console.error("❌ Error al obtener los datos:", error);
     }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleSubmit = () => {
-    console.log("Datos completos:", cards);
-  };
 
   return (
     <div>
@@ -74,15 +125,6 @@ export default function ValuesSection() {
           ))}
         </div>
       )}
-
-      <div className="text-center my-6">
-        <button
-          onClick={handleSubmit}
-          className="px-8 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
-          Guardar cambios
-        </button>
-      </div>
     </div>
   );
 }

@@ -1,67 +1,41 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ServiceCardForm from "../organisms/ServiceCardForm";
 import { Button } from "../atoms/Button";
-import {getServices, createService, deleteService} from "@/app/api/services";
+import { getServices, createService, deleteService, updateService } from "@/app/api/services";
 import ConfirmModal from "../molecules/ConfirmModal";
 
 export default function ServicesFormList() {
-  const [cards, setCards] = useState(null);
+  const [cards, setCards] = useState([]);
   const [emptyCard, setEmptyCard] = useState({
     title: "",
     text: "",
-    image: null, 
+    image: null,
     imagePreview: null,
   });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
-
   const [serviceToDelete, setServiceToDelete] = useState(null);
 
-  const handleDeleteCard = (id) => {
-    setServiceToDelete(id); 
-  };
+  // Referencia reactiva al estado actual
+  const cardsRef = useRef(cards);
+  const debounceRefs = useRef({});
 
-  const confirmDelete = async () => {
-    try {
-      await deleteService(serviceToDelete);
-      setCards((prev) => prev.filter((c) => c.id !== serviceToDelete));
-      console.log("✅ Servicio eliminado");
-    } catch (error) {
-      console.error("Error al eliminar servicio:", error);
-      setError("❌ Error al eliminar el servicio");
-    } finally {
-      setServiceToDelete(null); // cierra el modal
-    }
-  };
+  useEffect(() => {
+    cardsRef.current = cards;
+  }, [cards]);
 
-  const cancelDelete = () => setServiceToDelete(null);
-
-
-  const handleChange = (id, field, value) => {
-    if (id === "empty") {
-      setEmptyCard((prev) => ({ ...prev, [field]: value }));
-    } else {
-      setCards((prev) =>
-        prev.map((card) =>
-          card.id === id ? { ...card, [field]: value } : card
-        )
-      );
-    }
-    console.log(emptyCard)
-  };
-
-
+  // 🧩 Obtener datos iniciales
   const fetchData = async () => {
     try {
       const response = await getServices();
       const servicesData = response?.data || [];
       setCards(servicesData);
-      console.log("Datos de servicios obtenidos:", servicesData);
+      console.log("✅ Datos de servicios obtenidos:", servicesData);
     } catch (error) {
-      console.error("Error al obtener los datos de servicios:", error);
+      console.error("❌ Error al obtener los servicios:", error);
     }
   };
 
@@ -69,67 +43,132 @@ export default function ServicesFormList() {
     fetchData();
   }, []);
 
+  // 🧠 Manejar cambios
+  const handleChange = (id, field, value) => {
+    if (id === "empty") {
+      setEmptyCard((prev) => ({ ...prev, [field]: value }));
+      return;
+    }
+
+    // Actualizar localmente el valor
+    setCards((prev) =>
+      prev.map((card) =>
+        card.id === id ? { ...card, [field]: value } : card
+      )
+    );
+
+    // Actualizar preview si es imagen
+    if (field === "imagePreview") {
+      setCards((prev) =>
+        prev.map((card) =>
+          card.id === id ? { ...card, imagePreview: value } : card
+        )
+      );
+      return;
+    }
+
+    // 🕒 Debounce
+    if (debounceRefs.current[id]) clearTimeout(debounceRefs.current[id]);
+
+    debounceRefs.current[id] = setTimeout(async () => {
+      const current = cardsRef.current.find((c) => c.id === id);
+      if (!current) return;
+
+      const formData = new FormData();
+      formData.append("title", current.title || "");
+      formData.append("text", current.text || "");
+
+      if (current.image instanceof File) {
+        formData.append("image", current.image);
+      }
+
+      try {
+        console.log(`🚀 Actualizando servicio ${id}...`);
+        const response = await updateService(id, formData);
+
+        if (response?.data) {
+          setCards((prev) =>
+            prev.map((card) =>
+              card.id === id
+                ? {
+                    ...card,
+                    ...response.data,
+                    imagePreview:
+                      response.data.image &&
+                      response.data.image !== card.image
+                        ? `${response.data.image}?t=${Date.now()}`
+                        : card.imagePreview,
+                  }
+                : card
+            )
+          );
+          console.log(`✅ Servicio ${id} actualizado correctamente.`);
+        }
+      } catch (err) {
+        console.error(`❌ Error al actualizar servicio ${id}:`, err);
+        setError("No se pudo guardar el cambio.");
+      }
+    }, 800);
+  };
+
+  // 🧩 Crear nuevo servicio
   const handleAddCard = async () => {
-  const isComplete = emptyCard.title.trim() && emptyCard.text.trim() && emptyCard.image;
+    const isComplete =
+      emptyCard.title.trim() && emptyCard.text.trim() && emptyCard.image;
 
-  if (!isComplete) {
-    setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
-    return;
-  }
-
-  try {
-    setError("");
-
-    const newService = await handleCreateService(emptyCard);
-
-    if (newService) {
-      setCards((prev) => [...(prev || []), newService]);
+    if (!isComplete) {
+      setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
+      return;
     }
 
-    // Limpiar formulario
-    setEmptyCard({
-      title: "",
-      text: "",
-      image: null,
-      imagePreview: null,
-    });
-    setResetKey((prev) => prev + 1);
+    try {
+      setError("");
+      const formData = new FormData();
+      formData.append("title", emptyCard.title);
+      formData.append("text", emptyCard.text);
+      if (emptyCard.image) formData.append("image", emptyCard.image);
 
-  } catch (error) {
-    console.error("Error al agregar servicio:", error);
-    setError("❌ No se pudo agregar el servicio.");
-  }
-};
+      const response = await createService(formData);
+      if (response?.data) {
+        setCards((prev) => [...prev, response.data]);
+        console.log("✅ Nuevo servicio agregado:", response.data);
+      }
 
-
-  const handleCreateService = async (data) => {
-  try {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("text", data.text);
-    if (data.image) {
-      formData.append("image", data.image);
+      setEmptyCard({
+        title: "",
+        text: "",
+        image: null,
+        imagePreview: null,
+      });
+      setResetKey((prev) => prev + 1);
+    } catch (error) {
+      console.error("❌ Error al agregar servicio:", error);
+      setError("No se pudo agregar el servicio.");
     }
+  };
 
-    const response = await createService(formData);
-    console.log("✅ Nuevo servicio:", response.data);
+  // 🗑️ Eliminar servicio
+  const handleDeleteCard = (id) => setServiceToDelete(id);
+  const cancelDelete = () => setServiceToDelete(null);
 
-    return response.data;
-
-  } catch (error) {
-    console.error("Error al crear servicio:", error);
-    setError("❌ Error al crear el servicio");
-    return null;
-  }
-};
-
-
+  const confirmDelete = async () => {
+    try {
+      await deleteService(serviceToDelete);
+      setCards((prev) => prev.filter((c) => c.id !== serviceToDelete));
+      console.log("✅ Servicio eliminado");
+    } catch (error) {
+      console.error("❌ Error al eliminar servicio:", error);
+      setError("Error al eliminar el servicio.");
+    } finally {
+      setServiceToDelete(null);
+    }
+  };
 
   return (
     <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
       <div className="grid grid-cols-1 gap-7">
         <AnimatePresence>
-          {cards && cards.map((card) => (
+          {cards.map((card) => (
             <motion.div
               key={card.id}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -141,24 +180,27 @@ export default function ServicesFormList() {
                 formData={card}
                 onChange={(field, value) => handleChange(card.id, field, value)}
                 onDelete={() => handleDeleteCard(card.id)}
-                showTrash={true} 
+                showTrash={true}
               />
             </motion.div>
           ))}
         </AnimatePresence>
 
+        {/* Formulario para nuevo servicio */}
         <ServiceCardForm
           key={`empty-${resetKey}`}
           formData={emptyCard}
           onChange={(field, value) => handleChange("empty", field, value)}
           showTrash={false}
         />
-         <ConfirmModal
-        open={!!serviceToDelete}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
-        label="servicio"
-      />
+
+        {/* Modal de confirmación */}
+        <ConfirmModal
+          open={!!serviceToDelete}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+          label="servicio"
+        />
       </div>
 
       {error && (
@@ -175,11 +217,11 @@ export default function ServicesFormList() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
-        className="mt-4 "
+        className="mt-4 text-center"
       >
-       <div className="text-center">
-         <Button onClick={handleAddCard} className="px-14">Agregar servicio</Button>
-       </div>
+        <Button onClick={handleAddCard} className="px-14">
+          Agregar servicio
+        </Button>
       </motion.div>
     </div>
   );

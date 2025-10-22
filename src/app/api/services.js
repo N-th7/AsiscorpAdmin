@@ -8,5 +8,7 @@ export const createService = (data) =>
     headers: { "Content-Type": "multipart/form-data" },
   });
 
-  export const updateService = (id, data) => api.put(`/services/${id}`, data);
+  export const updateService = (id, data) => api.put(`/services/${id}`, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 export const deleteService = (id) => api.delete(`/services/${id}`);

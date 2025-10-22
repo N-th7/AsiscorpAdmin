@@ -5,5 +5,8 @@ export const createLink = (data) => api.post("/links", data,
     {
        headers: { "Content-Type": "multipart/form-data" }, 
     });  
-export const updateLink = (id, data) => api.put(`/links/${id}`, data);
+export const updateLink = (id, data) => api.put(`/links/${id}`, data,
+    {
+       headers: { "Content-Type": "multipart/form-data" }, 
+    });
 export const deleteLink = (id) => api.delete(`/links/${id}`);

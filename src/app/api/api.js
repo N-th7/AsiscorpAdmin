@@ -26,7 +26,6 @@ api.interceptors.response.use(
 
     if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
-
       try {
         const refreshResponse = await axios.post(
           `${API_URL}/auth/refresh`,
@@ -35,18 +34,23 @@ api.interceptors.response.use(
         );
 
         const newToken = refreshResponse.data.accessToken;
-        localStorage.setItem("accessToken", newToken);
-
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        return api(originalRequest);
+        if (newToken) {
+          localStorage.setItem("accessToken", newToken);
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        }
       } catch (refreshError) {
-        console.warn("🔒 Sesión expirada. Redirigiendo al inicio...");
+        console.warn("🔒 Refresh token inválido. Cerrando sesión...");
         handleSessionExpired();
       }
     }
 
-    if (error.response?.status === 401 || error.response?.status === 440) {
-      console.warn("⚠️ Token inválido o sesión finalizada. Redirigiendo...");
+    if (
+      error.response?.status === 401 ||
+      error.response?.status === 440 ||
+      error.response?.status === 403
+    ) {
+      console.warn("⚠️ Sesión expirada o token inválido. Cerrando sesión...");
       handleSessionExpired();
     }
 
@@ -58,7 +62,9 @@ function handleSessionExpired() {
   localStorage.removeItem("accessToken");
 
   if (typeof window !== "undefined") {
-    window.location.href = "/"; // Redirigir al login o página inicial
+    if (window.location.pathname !== "/") {
+      window.location.href = "/?sessionExpired=true";
+    }
   }
 }
 

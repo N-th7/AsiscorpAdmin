@@ -4,7 +4,11 @@ import TextArea from "../atoms/TextArea";
 
 export default function ValueCard({ title, data, onChange }) {
   const handleImageChange = (file, previewUrl) => {
-    onChange({ ...data, image: previewUrl });
+    onChange({
+      ...data,
+      image: file,
+      previewUrl: previewUrl,
+    });
   };
 
   const handleDescriptionChange = (e) => {
@@ -18,7 +22,7 @@ export default function ValueCard({ title, data, onChange }) {
         onChange={handleImageChange}
         width={150}
         height={150}
-        previewUrl={data.image || null}
+        previewUrl={data.previewUrl || data.image || null}
       />
 
       <h2 className="text-[20px] font-bold m-3">{title}</h2>
