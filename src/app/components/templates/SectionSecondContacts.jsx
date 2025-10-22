@@ -3,6 +3,7 @@ import SecondContactForm from "../organisms/SecondContactForm";
 import { Button } from "../atoms/Button";
 import { motion, AnimatePresence } from "framer-motion";
 import { getContacts, createContact, deleteContact, updateContact } from "@/app/api/contacts"; // ✅ Importamos updateContact
+import ConfirmModal from "../molecules/ConfirmModal";
 
 export default function SectionSecondContacts() {
   const [cards, setCards] = useState([]);
@@ -17,6 +18,7 @@ export default function SectionSecondContacts() {
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
   const debounceRefs = useRef({}); // ✅ guardará los timeouts por id
+  const [contacToDelete, setContactToDelete] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -95,15 +97,22 @@ export default function SectionSecondContacts() {
     }
   };
 
-  const handleDeleteCard = async (id) => {
-    try {
-      await deleteContact(id);
-      setCards((prev) => prev.filter((card) => card.id !== id));
-    } catch (error) {
-      console.error("Error al eliminar contacto:", error);
-      setError("❌ No se pudo eliminar el contacto.");
-    }
-  };
+  const handleDeleteCard = (id) => {
+        setContactToDelete(id); 
+      };
+  
+      const confirmDelete = async () => {
+        try {
+          await deleteContact(contacToDelete);
+          setCards((prev) => prev.filter((c) => c.id !== contacToDelete));
+        } catch (error) {
+          setError("❌ Error al eliminar el contacto");
+        } finally {
+          setContactToDelete(null);
+        }
+      };
+  
+    const cancelDelete = () => setContactToDelete(null);
 
   return (
     <div className="lg:px-30 w-full my-15">
@@ -117,14 +126,12 @@ export default function SectionSecondContacts() {
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.25 }}
           >
-            <div className="p-5 pb-10 bg-[#EAEAEA] rounded-md my-10 shadow-2xl">
               <SecondContactForm
                 formData={card}
                 onChange={(field, value) => handleChange(card.id, field, value)}
                 onDelete={() => handleDeleteCard(card.id)}
                 showTrash={true}
               />
-            </div>
           </motion.div>
         ))}
       </AnimatePresence>
@@ -136,6 +143,13 @@ export default function SectionSecondContacts() {
           formData={emptyCard}
           onChange={(field, value) => handleChange("empty", field, value)}
         />
+
+        <ConfirmModal
+              open={!!contacToDelete}
+              onConfirm={confirmDelete}
+              onCancel={cancelDelete}
+              label="contacto"
+            />       
         {error && (
           <motion.p
             className="text-red-500 text-sm mt-4 text-center"
