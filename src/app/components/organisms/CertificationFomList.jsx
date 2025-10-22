@@ -4,18 +4,25 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CertificationForm from "../molecules/CertificationForm";
 import PlusCard from "../atoms/PlusCard";
-import { getCertifications, createCertification, deleteCertification } from "@/app/api/certifications";
+import {
+  getCertifications,
+  createCertification,
+  deleteCertification,
+} from "@/app/api/certifications";
 import ConfirmModal from "../molecules/ConfirmModal";
-
 
 export default function CertificationFormList() {
   const [cards, setCards] = useState(null);
-  const [emptyCard, setEmptyCard] = useState({ image: "", title: "", imagePreview: "" });
+  const [emptyCard, setEmptyCard] = useState({
+    image: "",
+    title: "",
+    imagePreview: "",
+  });
   const [error, setError] = useState("");
-  const [resetKey, setResetKey] = useState(0); 
+  const [resetKey, setResetKey] = useState(0);
   const [certificationToDelete, setCertificationToDelete] = useState(null);
 
-const  fetchData = async () => {
+  const fetchData = async () => {
     try {
       const response = await getCertifications();
       const certificationsData = response?.data || [];
@@ -40,49 +47,49 @@ const  fetchData = async () => {
         )
       );
     }
-    console.log(emptyCard)
+    console.log(emptyCard);
   };
 
-
   const handleAddCard = async () => {
-    const isComplete =
-      emptyCard.image && emptyCard.title.trim() ;
-  
+    const isComplete = emptyCard.image && emptyCard.title.trim();
+
     if (!isComplete) {
-      setError("Por favor completa todos los campos antes de agregar otra tarjeta.");
+      setError(
+        "Por favor completa todos los campos antes de agregar otra tarjeta."
+      );
       return;
     }
-  
+
     try {
       setError("");
-  
+
       const formData = new FormData();
       formData.append("title", emptyCard.title);
       formData.append("image", emptyCard.image);
-  
+
       const response = await createCertification(formData);
-  
+
       if (response?.data) {
         const newCertification = response.data;
         setCards((prev) => [...(prev || []), newCertification]);
       }
-  
+
       setEmptyCard({
         image: null,
         imagePreview: null,
         title: "",
       });
       setResetKey((prev) => prev + 1);
-  
+
       console.log("✅ Certificacion creado correctamente");
     } catch (error) {
       console.error("Error al crear Certificacion:", error);
       setError("❌ Error al crear el Certificacion");
     }
   };
-  
+
   const handleDeleteCard = (id) => {
-    setCertificationToDelete(id); 
+    setCertificationToDelete(id);
   };
 
   const confirmDelete = async () => {
@@ -94,7 +101,7 @@ const  fetchData = async () => {
       console.error("Error al eliminar certificacion:", error);
       setError("❌ Error al eliminar el certificacion");
     } finally {
-      setCertificationToDelete(null); 
+      setCertificationToDelete(null);
     }
   };
 
@@ -104,37 +111,40 @@ const  fetchData = async () => {
     <div className="p-7 md:px-10 md:py-5 bg-[#EAEAEA] m-auto shadow-2xl rounded-2xl">
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-6">
         <AnimatePresence>
-          {cards && cards.map((card) => (
-            <motion.div
-              key={card.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.25 }}
-            >
-              <CertificationForm
-                formData={card}
-                onChange={(field, value) => handleChange(card.id, field, value)}
-                onDelete={() => handleDeleteCard(card.id)}
-                showTrash={true}
-              />
-            </motion.div>
-          ))}
+          {cards &&
+            cards.map((card) => (
+              <motion.div
+                key={card.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.25 }}
+              >
+                <CertificationForm
+                  formData={card}
+                  onChange={(field, value) =>
+                    handleChange(card.id, field, value)
+                  }
+                  onDelete={() => handleDeleteCard(card.id)}
+                  showTrash={true}
+                />
+              </motion.div>
+            ))}
         </AnimatePresence>
 
         <CertificationForm
-          key={`empty-${resetKey}`} 
+          key={`empty-${resetKey}`}
           formData={emptyCard}
           onChange={(field, value) => handleChange("empty", field, value)}
           showTrash={false}
         />
 
         <ConfirmModal
-                open={!!certificationToDelete}
-                onConfirm={confirmDelete}
-                onCancel={cancelDelete}
-                label="certificacion"
-              />        
+          open={!!certificationToDelete}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+          label="certificacion"
+        />
 
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
