@@ -21,12 +21,10 @@ export default function SectionSocial() {
   const debounceRefs = useRef({});
   const cardsRef = useRef(cards);
 
-  // Mantener referencia actualizada
   useEffect(() => {
     cardsRef.current = cards;
   }, [cards]);
 
-  // 🧩 Obtener enlaces existentes
   const fetchData = async () => {
     try {
       const response = await getLinks();
@@ -42,24 +40,20 @@ export default function SectionSocial() {
     fetchData();
   }, []);
 
-  // 🧠 Manejo de cambios (local + update automático)
   const handleChange = (id, field, value) => {
     if (id === "empty") {
       setEmptyCard((prev) => ({ ...prev, [field]: value }));
       return;
     }
 
-    // Actualiza localmente
     setCards((prev) =>
       prev.map((card) =>
         card.id === id ? { ...card, [field]: value } : card
       )
     );
 
-    // Si es un cambio visual (imagen preview), no hacer update
     if (field === "imagePreview") return;
 
-    // 🕒 Debounce update
     if (debounceRefs.current[id]) clearTimeout(debounceRefs.current[id]);
 
     debounceRefs.current[id] = setTimeout(async () => {
@@ -102,7 +96,6 @@ export default function SectionSocial() {
     }, 800);
   };
 
-  // ➕ Crear nuevo enlace
   const handleAddCard = async () => {
     const isComplete =
       emptyCard.title.trim() &&
@@ -142,7 +135,6 @@ export default function SectionSocial() {
     }
   };
 
-  // 🗑️ Eliminar enlace
   const handleDeleteCard = (id) => setLinkToDelete(id);
 
   const confirmDelete = async () => {

@@ -88,7 +88,7 @@ export default function PresentationSection() {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-20">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-20 bg-white p-5 rounded-2xl " id="inicio">
       <PresentationForm formData={formData} onChange={handleChange} />
       <ImageUploader
         label="Ingrese una imagen"

@@ -1,4 +1,3 @@
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -23,7 +22,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#183d72] via-[#1a4580] to-[#0a7d35] flex items-center justify-center">
+          {children}
+        </div>
       </body>
     </html>
   );

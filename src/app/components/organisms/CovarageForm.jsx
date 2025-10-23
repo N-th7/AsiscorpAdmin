@@ -74,10 +74,9 @@ export default function CoverageForm() {
   };
 
   return (
-    <>
+    <div className="bg-white rounded-2xl p-6">
       {formData && (
-        <form className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-12 h-full lg:px-20">
-          {/* 📝 Texto */}
+        <form className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-12 h-full lg:px-20 ">
           <div className="relative">
             <TextArea
               label="Ingrese la descripción"
@@ -105,6 +104,6 @@ export default function CoverageForm() {
           </div>
         </form>
       )}
-    </>
+    </div>
   );
 }

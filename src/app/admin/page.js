@@ -19,38 +19,22 @@ export default function Home() {
   const { authenticated, loading } = useAuth();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      localStorage.removeItem("accessToken");
-      router.push("/");
-    } catch (err) {
-      alert("No se pudo cerrar sesión correctamente");
-      console.error(err);
-    }
-  };
 
   if (loading) return <p>Cargando...</p>;
   if (!authenticated) return null;
 
   return (
-    <div className="md:p-20 p-10 md:px-30 min-h-screen bg-white text-black">
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
-      >
-        Cerrar sesión
-      </button>
+    <div className=" p-5 py-30  md:p-25 min-h-screen text-black">
 
-      <PresentationSection />
-      <ValuesSection />
-      <SectionTitle>Nuestros Servicios</SectionTitle>
+      <PresentationSection id="inicio" />
+      <ValuesSection id="sobre-nosotros" />
+      <SectionTitle id="servicios">Nuestros Servicios</SectionTitle>
       <ServicesFormList />
       <SectionTitle>Nuestros Clientes</SectionTitle>
       <ClientCardList />
       <SectionTitle>Nuestras Certificaciones</SectionTitle>
       <CertificationFomList />
-      <SectionTitle>Cobertura</SectionTitle>
+      <SectionTitle id="cobertura">Cobertura</SectionTitle>
       <CovarageForm />
       <SectionTitle>Contactos</SectionTitle>
       <SectionFirstContact />

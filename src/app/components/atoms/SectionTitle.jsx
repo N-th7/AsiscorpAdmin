@@ -1,9 +1,9 @@
 import react from 'react';
-export default function SectionTitle({ children }) {
+export default function SectionTitle({ children, id }) {
   const words = children.split(" ");
 
   return (
-    <h2 className="text-[40px] font-sans font-bold text-center my-10 md:my-15">
+    <h2 className="text-[40px] font-sans font-bold text-center my-10 md:my-15" id={id}>
       {words.map((word, index) => (
         <span
           key={index}

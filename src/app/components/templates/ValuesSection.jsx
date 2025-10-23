@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ValueCard from "../molecules/ValueCard";
 import { getIntroductionByName, updateIntroduction } from "@/app/api/introductions";
 
-export default function ValuesSection() {
+export default function ValuesSection({id}) {
   const [cards, setCards] = useState({
     Misión: { id: "", image: null, description: "", previewUrl: null },
     Visión: { id: "", image: null, description: "", previewUrl: null },
@@ -112,7 +112,7 @@ export default function ValuesSection() {
   }, []);
 
   return (
-    <div>
+    <div className="bg-white rounded-2xl p-2 my-15" id={id}>
       {formLoaded && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 divide-y-2 sm:divide-y-0 md:divide-x-2 md:divide-black my-20">
           {Object.keys(cards).map((key) => (

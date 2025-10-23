@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function LoginTemplate() {
     return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#183d72] via-[#1a4580] to-[#0a7d35] flex items-center justify-center p-4">
+    <div className="p-4">
             <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute top-20 left-20 w-72 h-72 bg-[#0a7d35] rounded-full opacity-20 blur-3xl"
