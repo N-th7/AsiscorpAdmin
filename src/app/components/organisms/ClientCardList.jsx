@@ -9,7 +9,7 @@ import {
   createClient,
   deleteClient,
   updateClient,
-} from "@/app/api/clients";
+} from "../../api/clients";
 import ConfirmModal from "../molecules/ConfirmModal";
 
 export default function ClientCardList() {
@@ -30,7 +30,6 @@ export default function ClientCardList() {
       const response = await getClients();
       const clientsData = response?.data || [];
       setCards(clientsData);
-      console.log("✅ Clientes obtenidos:", clientsData);
     } catch (error) {
       console.error("❌ Error al obtener clientes:", error);
       setError("Error al cargar los clientes");
@@ -55,7 +54,6 @@ export default function ClientCardList() {
 
     debounceRefs.current[id] = setTimeout(async () => {
       try {
-        // ✅ Tomamos el estado más reciente de las cards
         setCards((prevCards) => {
           const updatedCard = prevCards.find((card) => card.id === id);
           if (!updatedCard) return prevCards;
@@ -64,24 +62,20 @@ export default function ClientCardList() {
           formData.append("title", updatedCard.title);
           formData.append("text", updatedCard.text);
 
-          // 🖼️ Solo incluir la imagen si realmente es un nuevo archivo
           if (updatedCard.image instanceof File) {
             formData.append("image", updatedCard.image);
           }
 
-          // Ejecutar la actualización asincrónica fuera del setCards
           (async () => {
             try {
               const response = await updateClient(id, formData);
               if (response?.data) {
-                // ✅ Actualiza el cliente con los nuevos datos del backend
                 setCards((cardsAfterUpdate) =>
                   cardsAfterUpdate.map((card) => {
                     if (card.id !== id) return card;
 
                     const updated = { ...card };
 
-                    // Solo actualiza si el backend devolvió cambios
                     if (response?.data?.title)
                       updated.title = response.data.title;
                     if (response?.data?.text) updated.text = response.data.text;
@@ -99,7 +93,6 @@ export default function ClientCardList() {
                   })
                 );
               }
-              console.log(`✅ Cliente ${id} actualizado correctamente.`);
             } catch (err) {
               console.error(`❌ Error al actualizar cliente ${id}:`, err);
               setError("No se pudo guardar el cambio.");
@@ -118,7 +111,6 @@ export default function ClientCardList() {
     }, 800);
   };
 
-  // 🔹 Crear nuevo cliente
   const handleAddCard = async () => {
     const isComplete =
       emptyCard.image && emptyCard.title.trim() && emptyCard.text.trim();
@@ -149,21 +141,18 @@ export default function ClientCardList() {
         text: "",
       });
       setResetKey((prev) => prev + 1);
-      console.log("✅ Cliente creado correctamente.");
     } catch (error) {
       console.error("❌ Error al crear cliente:", error);
       setError("Error al crear el cliente.");
     }
   };
 
-  // 🔹 Eliminar cliente
   const handleDeleteCard = (id) => setClientToDelete(id);
 
   const confirmDelete = async () => {
     try {
       await deleteClient(clientToDelete);
       setCards((prev) => prev.filter((c) => c.id !== clientToDelete));
-      console.log("🗑️ Cliente eliminado correctamente.");
     } catch (error) {
       console.error("❌ Error al eliminar cliente:", error);
       setError("Error al eliminar el cliente.");

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import TextArea from "../atoms/TextArea";
 import ImageUploader from "../atoms/ImageUploader";
-import { getIntroductionByName, updateIntroduction } from "@/app/api/introductions";
+import { getIntroductionByName, updateIntroduction } from "../../api/introductions";
 
 export default function CoverageForm() {
   const [formData, setFormData] = useState(null);
@@ -27,7 +27,6 @@ export default function CoverageForm() {
           previewUrl: null,
         });
       }
-      console.log("✅ Datos de cobertura obtenidos:", response?.data);
     } catch (error) {
       console.error("❌ Error al obtener los datos de cobertura:", error);
     }
@@ -53,7 +52,6 @@ export default function CoverageForm() {
       }
 
       try {
-        console.log("🚀 Guardando cambios de cobertura...");
         const response = await updateIntroduction(updatedForm.id, data);
 
         if (response?.data) {
@@ -66,7 +64,6 @@ export default function CoverageForm() {
               : prev.previewUrl,
           }));
         }
-        console.log("✅ Cobertura actualizada correctamente.");
       } catch (err) {
         console.error("❌ Error al guardar cobertura:", err);
       }

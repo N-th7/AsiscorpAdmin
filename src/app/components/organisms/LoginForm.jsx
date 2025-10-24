@@ -4,7 +4,7 @@ import { Lock, Mail, Eye, EyeOff, Shield, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import Input from "./../atoms/Input";
 import { Button } from "../atoms/Button";
-import {login} from "@/app/api/auth";
+import { login } from "../../api/auth"
 import { useRouter } from "next/navigation";
 
 

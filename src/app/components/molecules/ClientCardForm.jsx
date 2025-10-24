@@ -24,7 +24,6 @@ export default function ClientCardForm({
 
   return (
     <div className="relative shadow-lg py-5 px-5 rounded-lg border border-gray-200 w-full h-full flex flex-col gap-3 bg-white overflow-visible">
-      {/* 🗑️ Ícono de eliminar siempre visible y por encima */}
       {showTrash && (
         <button
           type="button"
@@ -37,7 +36,6 @@ export default function ClientCardForm({
         </button>
       )}
 
-      {/* 📸 Imagen */}
       <div className="flex items-center justify-center relative z-0">
         <ImageUploader
           key={formData.imagePreview || "empty"}
@@ -55,7 +53,6 @@ export default function ClientCardForm({
         />
       </div>
 
-      {/* 🏷️ Título */}
       <TextArea
         label="Ingrese el título"
         name="title"
@@ -67,7 +64,6 @@ export default function ClientCardForm({
         className="bg-white rounded-md"
       />
 
-      {/* 📝 Descripción */}
       <TextArea
         label="Ingrese una descripción"
         name="text"

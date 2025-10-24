@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import TextArea from "../atoms/TextArea";
 import Input from "../atoms/Input";
-import { getContactById, updateContact } from "@/app/api/contacts";
+import { getContactById, updateContact } from "../../api/contacts";
 
 export default function FirstContactForm() {
   const [formData, setFormData] = useState(null);
@@ -27,7 +27,6 @@ export default function FirstContactForm() {
         address: data.address || "",
       });
 
-      console.log("✅ Datos de contacto obtenidos:", data);
     } catch (error) {
       console.error("❌ Error al obtener los datos de contacto:", error);
     }
@@ -50,7 +49,6 @@ export default function FirstContactForm() {
         const response = await updateContact(updatedForm.id, updatedForm);
         if (response?.data) {
           setFormData(response.data);
-          console.log("✅ Contacto actualizado:", response.data);
         }
       } catch (err) {
         console.error("❌ Error al guardar contacto:", err);

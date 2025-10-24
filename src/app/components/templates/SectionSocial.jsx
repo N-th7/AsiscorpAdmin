@@ -5,7 +5,7 @@ import SocialMediaForm from "../organisms/SocialMediaForm";
 import { Button } from "../atoms/Button";
 import { motion, AnimatePresence } from "framer-motion";
 import ConfirmModal from "../molecules/ConfirmModal";
-import { getLinks, createLink, deleteLink, updateLink } from "@/app/api/links";
+import { getLinks, createLink, deleteLink, updateLink } from "../../api/links";
 
 export default function SectionSocial() {
   const [emptyCard, setEmptyCard] = useState({
@@ -30,7 +30,6 @@ export default function SectionSocial() {
       const response = await getLinks();
       const linksData = response?.data || [];
       setCards(linksData);
-      console.log("✅ Datos de enlaces obtenidos:", linksData);
     } catch (error) {
       console.error("❌ Error al obtener los enlaces:", error);
     }
@@ -87,7 +86,6 @@ export default function SectionSocial() {
                 : card
             )
           );
-          console.log(`✅ Enlace ${id} actualizado correctamente.`);
         }
       } catch (err) {
         console.error(`❌ Error al actualizar enlace ${id}:`, err);
@@ -119,7 +117,6 @@ export default function SectionSocial() {
       const response = await createLink(formData);
       if (response?.data) {
         setCards((prev) => [...prev, response.data]);
-        console.log("✅ Nuevo enlace creado:", response.data);
       }
 
       setEmptyCard({
@@ -141,7 +138,6 @@ export default function SectionSocial() {
     try {
       await deleteLink(linkToDelete);
       setCards((prev) => prev.filter((c) => c.id !== linkToDelete));
-      console.log("✅ Enlace eliminado");
     } catch (error) {
       console.error("❌ Error al eliminar el enlace:", error);
       setError("Error al eliminar el enlace.");
@@ -175,7 +171,6 @@ export default function SectionSocial() {
         ))}
       </AnimatePresence>
 
-      {/* Formulario para agregar nuevo enlace */}
       <div className="bg-[#EAEAEA] rounded-md p-4 lg:px-20 my-10">
         <SocialMediaForm
           key={`empty-${resetKey}`}
@@ -195,7 +190,6 @@ export default function SectionSocial() {
         )}
       </div>
 
-      {/* Botón para agregar */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -205,7 +199,6 @@ export default function SectionSocial() {
         <Button onClick={handleAddCard}>Agregar nuevo enlace</Button>
       </motion.div>
 
-      {/* Modal de confirmación */}
       <ConfirmModal
         open={!!linkToDelete}
         onConfirm={confirmDelete}

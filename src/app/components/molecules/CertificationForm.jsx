@@ -13,7 +13,6 @@ export default function CertificationForm({
 }) {
   return (
     <div className="relative shadow-lg py-5 px-5 rounded-lg border border-gray-200 bg-white w-full h-full flex flex-col gap-3 overflow-visible">
-      {/* 🗑️ Botón de eliminar — ahora siempre al frente */}
       {showTrash && onDelete && (
         <button
           type="button"
@@ -26,7 +25,6 @@ export default function CertificationForm({
         </button>
       )}
 
-      {/* 📸 Subida de imagen */}
       <div className="relative z-0">
         <ImageUploader
           name="image"
@@ -41,7 +39,6 @@ export default function CertificationForm({
         />
       </div>
 
-      {/* 📝 Campo de texto */}
       <TextArea
         label="Ingrese el título"
         name="title"

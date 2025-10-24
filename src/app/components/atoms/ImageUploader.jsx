@@ -2,14 +2,13 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { getImageUrl } from "@/utils/getImageUrl";
+import { getImageUrl } from "../../utils/getImageUrl"
 
 const ImageUploader = ({ label, placeholder, className, width, height, onChange, previewUrl }) => {
   const [preview, setPreview] = useState(previewUrl || null);
   const [error, setError] = useState("");
   const inputRef = useRef(null);
 
-  // 🔄 Si cambia previewUrl desde el padre (por datos del backend)
   useEffect(() => {
     setPreview(previewUrl || null);
   }, [previewUrl]);

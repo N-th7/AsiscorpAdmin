@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ServiceCardForm from "../organisms/ServiceCardForm";
 import { Button } from "../atoms/Button";
-import { getServices, createService, deleteService, updateService } from "@/app/api/services";
+import { getServices, createService, deleteService, updateService } from "../../api/services";
 import ConfirmModal from "../molecules/ConfirmModal";
 
 export default function ServicesFormList() {
@@ -19,7 +19,6 @@ export default function ServicesFormList() {
   const [resetKey, setResetKey] = useState(0);
   const [serviceToDelete, setServiceToDelete] = useState(null);
 
-  // Referencia reactiva al estado actual
   const cardsRef = useRef(cards);
   const debounceRefs = useRef({});
 
@@ -27,13 +26,11 @@ export default function ServicesFormList() {
     cardsRef.current = cards;
   }, [cards]);
 
-  // 🧩 Obtener datos iniciales
   const fetchData = async () => {
     try {
       const response = await getServices();
       const servicesData = response?.data || [];
       setCards(servicesData);
-      console.log("✅ Datos de servicios obtenidos:", servicesData);
     } catch (error) {
       console.error("❌ Error al obtener los servicios:", error);
     }
@@ -43,21 +40,18 @@ export default function ServicesFormList() {
     fetchData();
   }, []);
 
-  // 🧠 Manejar cambios
   const handleChange = (id, field, value) => {
     if (id === "empty") {
       setEmptyCard((prev) => ({ ...prev, [field]: value }));
       return;
     }
 
-    // Actualizar localmente el valor
     setCards((prev) =>
       prev.map((card) =>
         card.id === id ? { ...card, [field]: value } : card
       )
     );
 
-    // Actualizar preview si es imagen
     if (field === "imagePreview") {
       setCards((prev) =>
         prev.map((card) =>
@@ -67,7 +61,6 @@ export default function ServicesFormList() {
       return;
     }
 
-    // 🕒 Debounce
     if (debounceRefs.current[id]) clearTimeout(debounceRefs.current[id]);
 
     debounceRefs.current[id] = setTimeout(async () => {
@@ -83,7 +76,6 @@ export default function ServicesFormList() {
       }
 
       try {
-        console.log(`🚀 Actualizando servicio ${id}...`);
         const response = await updateService(id, formData);
 
         if (response?.data) {
@@ -102,7 +94,6 @@ export default function ServicesFormList() {
                 : card
             )
           );
-          console.log(`✅ Servicio ${id} actualizado correctamente.`);
         }
       } catch (err) {
         console.error(`❌ Error al actualizar servicio ${id}:`, err);
@@ -111,7 +102,6 @@ export default function ServicesFormList() {
     }, 800);
   };
 
-  // 🧩 Crear nuevo servicio
   const handleAddCard = async () => {
     const isComplete =
       emptyCard.title.trim() && emptyCard.text.trim() && emptyCard.image;
@@ -131,7 +121,6 @@ export default function ServicesFormList() {
       const response = await createService(formData);
       if (response?.data) {
         setCards((prev) => [...prev, response.data]);
-        console.log("✅ Nuevo servicio agregado:", response.data);
       }
 
       setEmptyCard({
@@ -147,7 +136,6 @@ export default function ServicesFormList() {
     }
   };
 
-  // 🗑️ Eliminar servicio
   const handleDeleteCard = (id) => setServiceToDelete(id);
   const cancelDelete = () => setServiceToDelete(null);
 
@@ -155,7 +143,6 @@ export default function ServicesFormList() {
     try {
       await deleteService(serviceToDelete);
       setCards((prev) => prev.filter((c) => c.id !== serviceToDelete));
-      console.log("✅ Servicio eliminado");
     } catch (error) {
       console.error("❌ Error al eliminar servicio:", error);
       setError("Error al eliminar el servicio.");
@@ -186,7 +173,6 @@ export default function ServicesFormList() {
           ))}
         </AnimatePresence>
 
-        {/* Formulario para nuevo servicio */}
         <ServiceCardForm
           key={`empty-${resetKey}`}
           formData={emptyCard}
@@ -194,7 +180,6 @@ export default function ServicesFormList() {
           showTrash={false}
         />
 
-        {/* Modal de confirmación */}
         <ConfirmModal
           open={!!serviceToDelete}
           onConfirm={confirmDelete}

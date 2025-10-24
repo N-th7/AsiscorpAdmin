@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import PresentationForm from "../organisms/PresentetationForm";
 import ImageUploader from "../atoms/ImageUploader";
-import { getIntroductionByName, updateIntroduction } from "@/app/api/introductions";
+import { getIntroductionByName, updateIntroduction } from "../../api/introductions";
 
 export default function PresentationSection() {
   const [formData, setFormData] = useState({
@@ -18,7 +18,6 @@ export default function PresentationSection() {
   const debounceRefs = useRef({});
   const formRef = useRef(formData);
 
-  // Mantener la referencia actualizada del formulario
   useEffect(() => {
     formRef.current = formData;
   }, [formData]);
@@ -35,7 +34,6 @@ export default function PresentationSection() {
           slogan: response.data.slogan || "",
           previewURL: response.data.image || "",
         });
-        console.log("✅ Datos de introducción obtenidos:", response.data);
       }
     } catch (error) {
       console.error("❌ Error al obtener los datos de introducción:", error);
@@ -66,7 +64,6 @@ export default function PresentationSection() {
       }
 
       try {
-        console.log(`🚀 Actualizando presentación (${id})`);
         for (let [k, v] of data.entries()) console.log(k, v);
 
         const response = await updateIntroduction(id, data);
@@ -80,7 +77,6 @@ export default function PresentationSection() {
           }));
         }
 
-        console.log("✅ Presentación actualizada correctamente.");
       } catch (err) {
         console.error("❌ Error al actualizar presentación:", err);
       }

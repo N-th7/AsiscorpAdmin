@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import SecondContactForm from "../organisms/SecondContactForm";
 import { Button } from "../atoms/Button";
 import { motion, AnimatePresence } from "framer-motion";
-import { getContacts, createContact, deleteContact, updateContact } from "@/app/api/contacts"; // ✅ Importamos updateContact
+import { getContacts, createContact, deleteContact, updateContact } from "../../api/contacts";
 import ConfirmModal from "../molecules/ConfirmModal";
 
 export default function SectionSecondContacts() {
@@ -17,7 +17,7 @@ export default function SectionSecondContacts() {
   });
   const [error, setError] = useState("");
   const [resetKey, setResetKey] = useState(0);
-  const debounceRefs = useRef({}); // ✅ guardará los timeouts por id
+  const debounceRefs = useRef({}); 
   const [contacToDelete, setContactToDelete] = useState(null);
 
   const fetchData = async () => {
@@ -56,7 +56,6 @@ export default function SectionSecondContacts() {
         const updatedCard = cards.find((card) => card.id === id);
         if (updatedCard) {
           await updateContact(id, { ...updatedCard, [field]: value });
-          console.log(`✅ Contacto ${id} actualizado en backend.`);
         }
       } catch (error) {
         console.error(`❌ Error al actualizar contacto ${id}:`, error);

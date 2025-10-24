@@ -9,7 +9,7 @@ import {
   createCertification,
   deleteCertification,
   updateCertification,
-} from "@/app/api/certifications";
+} from "../../api/certifications";
 import ConfirmModal from "../molecules/ConfirmModal";
 
 export default function CertificationFormList() {
@@ -30,13 +30,11 @@ export default function CertificationFormList() {
     cardsRef.current = cards;
   }, [cards]);
 
-  // 🧩 Obtener certificaciones
   const fetchData = async () => {
     try {
       const response = await getCertifications();
       const certificationsData = response?.data || [];
       setCards(certificationsData);
-      console.log("✅ Certificaciones obtenidas:", certificationsData);
     } catch (error) {
       console.error("❌ Error al obtener certificaciones:", error);
     }
@@ -46,21 +44,18 @@ export default function CertificationFormList() {
     fetchData();
   }, []);
 
-  // 🧠 Manejar cambios (local + debounce update)
   const handleChange = (id, field, value) => {
     if (id === "empty") {
       setEmptyCard((prev) => ({ ...prev, [field]: value }));
       return;
     }
 
-    // Actualiza localmente
     setCards((prev) =>
       prev.map((card) =>
         card.id === id ? { ...card, [field]: value } : card
       )
     );
 
-    // 🖼️ Actualiza preview inmediatamente
     if (field === "imagePreview") {
       setCards((prev) =>
         prev.map((card) =>
@@ -70,7 +65,6 @@ export default function CertificationFormList() {
       return;
     }
 
-    // 🕒 Debounce: actualiza en backend
     if (debounceRefs.current[id]) clearTimeout(debounceRefs.current[id]);
 
     debounceRefs.current[id] = setTimeout(async () => {
@@ -84,7 +78,6 @@ export default function CertificationFormList() {
       }
 
       try {
-        console.log(`🚀 Actualizando certificación ${id}...`);
         const response = await updateCertification(id, formData);
 
         if (response?.data) {
@@ -103,16 +96,15 @@ export default function CertificationFormList() {
                 : card
             )
           );
-          console.log(`✅ Certificación ${id} actualizada correctamente.`);
         }
       } catch (err) {
+        console.alert("Sesion expirada", err);
         console.error(`❌ Error al actualizar certificación ${id}:`, err);
         setError("No se pudo guardar el cambio.");
       }
     }, 800);
   };
 
-  // ➕ Crear nueva certificación
   const handleAddCard = async () => {
     const isComplete = emptyCard.title.trim() && emptyCard.image;
     if (!isComplete) {
@@ -130,7 +122,6 @@ export default function CertificationFormList() {
 
       if (response?.data) {
         setCards((prev) => [...prev, response.data]);
-        console.log("✅ Certificación creada:", response.data);
       }
 
       setEmptyCard({ image: null, imagePreview: null, title: "" });
@@ -141,7 +132,6 @@ export default function CertificationFormList() {
     }
   };
 
-  // 🗑️ Eliminar certificación
   const handleDeleteCard = (id) => setCertificationToDelete(id);
   const cancelDelete = () => setCertificationToDelete(null);
 
@@ -149,7 +139,6 @@ export default function CertificationFormList() {
     try {
       await deleteCertification(certificationToDelete);
       setCards((prev) => prev.filter((c) => c.id !== certificationToDelete));
-      console.log("✅ Certificación eliminada");
     } catch (error) {
       console.error("❌ Error al eliminar certificación:", error);
       setError("No se pudo eliminar la certificación.");
@@ -180,7 +169,6 @@ export default function CertificationFormList() {
           ))}
         </AnimatePresence>
 
-        {/* Form vacía para agregar nueva */}
         <CertificationForm
           key={`empty-${resetKey}`}
           formData={emptyCard}
@@ -188,7 +176,6 @@ export default function CertificationFormList() {
           showTrash={false}
         />
 
-        {/* Botón para agregar */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -197,7 +184,6 @@ export default function CertificationFormList() {
           <PlusCard onClick={handleAddCard} />
         </motion.div>
 
-        {/* Modal de confirmación */}
         <ConfirmModal
           open={!!certificationToDelete}
           onConfirm={confirmDelete}

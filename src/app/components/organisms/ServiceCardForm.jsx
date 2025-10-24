@@ -34,7 +34,6 @@ export default function ServiceCardForm({
       onSubmit={handleSubmit}
       className="relative flex flex-col w-full shadow-2xl p-5 rounded-lg border border-gray-200 bg-white overflow-visible"
     >
-      {/* 🗑️ Basurero visible al frente */}
       {showTrash && (
         <button
           type="button"
@@ -48,7 +47,6 @@ export default function ServiceCardForm({
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-2">
-        {/* 📝 Lado izquierdo: título y descripción */}
         <div>
           <TextArea
             label="Ingrese el título"
@@ -70,7 +68,6 @@ export default function ServiceCardForm({
           />
         </div>
 
-        {/* 🖼️ Lado derecho: imagen */}
         <div className="flex items-center justify-center relative z-0">
           <ImageUploader
             name="image"
@@ -86,7 +83,6 @@ export default function ServiceCardForm({
         </div>
       </div>
 
-      {/* 🔹 Botón opcional de envío */}
       {onSubmit && (
         <div className="flex justify-end mt-4">
           <Button type="submit" label={isEdit ? "Actualizar" : "Guardar"} />

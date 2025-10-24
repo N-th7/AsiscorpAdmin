@@ -1,8 +1,7 @@
-"use client";
 import { useState, useEffect } from "react";
 import { NavbarContent } from "../organisms/NavbarContent";
 import { MobileMenu } from "../organisms/MobileMenu";
-import { logout } from "@/app/api/auth";
+import { logout } from "../../api/auth";
 import { useRouter } from "next/navigation";
 
 export function Navbar({phone}) {

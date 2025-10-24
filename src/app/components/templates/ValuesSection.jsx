@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ValueCard from "../molecules/ValueCard";
-import { getIntroductionByName, updateIntroduction } from "@/app/api/introductions";
+import { getIntroductionByName, updateIntroduction } from "../../api/introductions";
 
 export default function ValuesSection({id}) {
   const [cards, setCards] = useState({
@@ -15,7 +15,6 @@ export default function ValuesSection({id}) {
   const debounceRefs = useRef({});
   const cardsRef = useRef(cards);
 
-  // Mantener referencia actualizada al estado
   useEffect(() => {
     cardsRef.current = cards;
   }, [cards]);
@@ -30,10 +29,8 @@ export default function ValuesSection({id}) {
     const id = cards[key]?.id;
     if (!id) return;
 
-    // Limpiar debounce anterior
     if (debounceRefs.current[id]) clearTimeout(debounceRefs.current[id]);
 
-    // Crear nuevo debounce
     debounceRefs.current[id] = setTimeout(async () => {
       const currentCard = cardsRef.current[key];
       if (!currentCard?.id) return;
@@ -47,7 +44,6 @@ export default function ValuesSection({id}) {
       }
 
       try {
-        console.log(`🚀 Enviando actualización de ${key}`);
         for (let [k, v] of formData.entries()) console.log(k, v);
 
         const response = await updateIntroduction(currentCard.id, formData);
@@ -66,7 +62,6 @@ export default function ValuesSection({id}) {
           }));
         }
 
-        console.log(`✅ ${key} actualizado correctamente.`);
       } catch (err) {
         console.error(`❌ Error al actualizar ${key}:`, err);
       }
@@ -101,7 +96,6 @@ export default function ValuesSection({id}) {
 
       setCards(updatedCards);
       setFormLoaded(true);
-      console.log("✅ Datos obtenidos correctamente:", updatedCards);
     } catch (error) {
       console.error("❌ Error al obtener los datos:", error);
     }
