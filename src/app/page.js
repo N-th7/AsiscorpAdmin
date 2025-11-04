@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import LoginTemplate from './components/templates/LoginTemplate';
 import { useSearchParams } from "next/navigation";
 
-
-export default function Login() {
-
+function LoginContent() {
   const searchParams = useSearchParams();
   const [showMessage, setShowMessage] = useState(false);
 
@@ -19,7 +17,6 @@ export default function Login() {
   }, [searchParams]);
 
   return (
-    
     <div className='relative flex flex-col items-center justify-center min-h-screen p-6'>
       {showMessage && (
         <div className="mb-4 w-full max-w-md rounded-lg bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 text-center">
@@ -28,5 +25,13 @@ export default function Login() {
       )}
       <LoginTemplate />
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<div className="text-center p-4">Cargando...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
